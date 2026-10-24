@@ -1,8 +1,0 @@
-backend/app/api/.gitkeep
-backend/app/services/.gitkeep
-backend/app/db/.gitkeep
-frontend/.gitkeep
-worker/.gitkeep
-scripts/.gitkeep
-tests/.gitkeep
-docs/.gitkeep

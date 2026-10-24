@@ -1,62 +1,173 @@
 # Alpha Research
 
-Alpha Research es un proyecto de segundo curso de ASIR (Administración de Sistemas Informáticos en Red) orientado al desarrollo de una plataforma inteligente para facilitar la búsqueda, recopilación y organización de información científica relacionada con las deficiencias de sarcoglicanos y las distrofias musculares de cinturas.
+Plataforma inteligente para la búsqueda, recopilación y organización de información científica sobre **deficiencias de sarcoglicanos** y **distrofias musculares de cinturas**.
+
+Proyecto de segundo curso de **ASIR (Administración de Sistemas Informáticos en Red)** que integra administración de sistemas, redes, virtualización, bases de datos y automatización de tareas.
+
+---
+
+## Descripción
+
+Alpha Research tiene como objetivo centralizar publicaciones y estudios científicos, automatizar la búsqueda periódica de nuevas investigaciones y facilitar el acceso a la información mediante filtros, resúmenes y herramientas de consulta.
+
+El repositorio recoge el desarrollo de la aplicación, la configuración de la infraestructura, la documentación técnica y el seguimiento del proyecto.
+
+> **Estado:** proyecto en fase inicial. La estructura del repositorio está definida, pero la lógica de la API, el esquema de base de datos y la orquestación con Docker están pendientes de implementación. Consulta el [Roadmap](#roadmap).
+
+---
 
 ## Objetivos
 
-El proyecto tiene como objetivo:
-
-- Centralizar publicaciones y estudios científicos.
+- Centralizar publicaciones y estudios científicos relevantes.
 - Automatizar la búsqueda periódica de nuevas investigaciones.
-- Facilitar el acceso a la información mediante filtros, resúmenes y herramientas de consulta.
+- Permitir filtrar y consultar la información de forma sencilla.
+- Generar resúmenes que faciliten la lectura de los documentos.
+- Ofrecer una API y una interfaz web para acceder a los datos.
+
+---
+
+## Funcionalidades previstas
+
+- [ ] Registro y consulta de publicaciones científicas.
+- [ ] Búsqueda por palabras clave, autor, fecha y fuente.
+- [ ] Búsqueda automática periódica de nuevas publicaciones (worker).
+- [ ] Resúmenes automáticos de los estudios.
+- [ ] API REST para consulta de datos.
+- [ ] Interfaz web de consulta y filtrado.
+
+---
 
 ## Tecnologías
 
-La solución contempla el uso de tecnologías como:
+| Capa | Tecnología |
+|------|------------|
+| Sistema operativo | Linux |
+| Contenedores | Docker y Docker Compose |
+| Backend | Python + FastAPI |
+| Base de datos | PostgreSQL |
+| Frontend | Por definir |
+| Automatización | Worker de búsqueda periódica |
 
-- Linux
-- Docker
-- Python
-- FastAPI
-- PostgreSQL
+---
 
-En ella se aplican conocimientos de administración de sistemas, redes, virtualización, bases de datos y automatización de tareas.
+## Estructura del repositorio
 
-## Contenido del repositorio
+```text
+Projecte-ASIR/
+├── backend/                  # API FastAPI
+│   └── app/
+│       ├── main.py           # Punto de entrada de la API
+│       ├── api/              # Rutas y endpoints
+│       ├── services/         # Lógica de negocio
+│       └── db/               # Acceso a datos y modelos
+├── database/
+│   └── schema.sql            # Esquema de la base de datos
+├── frontend/                 # Interfaz web
+├── infra/
+│   └── compose.yaml          # Orquestación de servicios con Docker
+├── worker/                   # Búsqueda automática de publicaciones
+├── scripts/                  # Scripts de utilidad y automatización
+├── tests/                    # Pruebas del proyecto
+├── docs/                     # Documentación técnica
+├── .env.example              # Plantilla de variables de entorno
+└── README.md
+```
 
-Este repositorio recoge el desarrollo, la configuración de la infraestructura, la documentación técnica y el seguimiento del proyecto.
+> Algunas carpetas se irán creando a medida que avance el desarrollo.
 
+---
 
-Estás trabajando en el repositorio "Alpha Research", un proyecto de segundo curso de ASIR escrito en español. Es una plataforma para buscar, recopilar y organizar publicaciones científicas sobre deficiencias de sarcoglicanos y distrofias musculares de cinturas, con Linux, Docker, Python, FastAPI y PostgreSQL.
+## Requisitos previos
 
-Estructura actual en la raíz:
-- backend/app/ (código Python con FastAPI)
-- database/
-- infra/ (compose.yaml)
-- frontend/
-- .env.example, .gitignore, .gitkeep
-- README.md
+- Linux (o entorno compatible)
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Git](https://git-scm.com/)
+- Python 3.11 o superior (para ejecutar el backend fuera de Docker)
+- PostgreSQL 15 o superior (si no se usa Docker)
 
-Objetivo: mejorar la estructura del proyecto y la calidad del README.md.
+---
 
-Reglas estrictas:
-1. No añadas información nueva a ningún archivo. Solo puedes mover, renombrar, reordenar o reformatear lo que ya existe.
-2. No inventes secciones con contenido que no esté en el proyecto. Por ejemplo, si el README no explica cómo instalar nada, no escribas una sección de instalación con comandos. Esa sección no se crea.
-3. No modifiques la lógica del código Python. Si mover un archivo obliga a cambiar imports, rutas o referencias (por ejemplo, en compose.yaml), actualiza solo esas referencias y lístalas.
-4. No borres nada. Si algo parece sobrante o duplicado (por ejemplo, lo que quede en database/ tras mover compose.yaml a infra/), dímelo y no lo toques.
-5. No abras ni modifiques .env. Solo puedes leer .env.example.
-6. Conserva todas las frases y datos del README. Puedes reordenarlas, convertirlas en secciones o mejorar la redacción, pero sin cambiar su significado ni perder información.
-7. No muevas nada dentro de backend/app sin proponérmelo antes en la fase 1.
+## Instalación y puesta en marcha
 
-Fase 1 (no modifiques nada todavía):
-- Lista los archivos del repo con `git ls-files` y revisa el contenido de cada carpeta.
-- Muéstrame la estructura actual y la propuesta, con cada movimiento (ruta antigua → ruta nueva).
-- Indica qué imports, rutas o referencias se romperían con cada movimiento.
-- Propón la estructura del README: las secciones y qué contenido existente va en cada una.
-- Dime qué no tienes claro.
-- Espera mi confirmación antes de editar.
+> La infraestructura todavía está en desarrollo, por lo que estos pasos describen el flujo previsto y pueden no funcionar hasta completar la implementación.
 
-Fase 2 (solo tras mi confirmación):
-- Aplica los cambios aprobados.
-- Al final, dame una tabla con cada movimiento y un resumen de los cambios en el README.
-- Dime qué habría que comprobar para verificar que no se ha roto nada.
+### 1. Clonar el repositorio
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd Projecte-ASIR
+```
+
+### 2. Configurar las variables de entorno
+
+Copia la plantilla y ajusta los valores:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env` y cambia, como mínimo, la contraseña de PostgreSQL. **Nunca subas el archivo `.env` al repositorio.**
+
+### 3. Levantar los servicios con Docker
+
+```bash
+docker compose -f infra/compose.yaml up -d
+```
+
+### 4. Comprobar el estado
+
+```bash
+docker compose -f infra/compose.yaml ps
+```
+
+La API quedará disponible en `http://localhost:8000` (según `API_PORT`).
+
+---
+
+## Variables de entorno
+
+Se definen en el archivo `.env` (basado en `.env.example`):
+
+| Variable | Descripción | Valor por defecto |
+|----------|-------------|-------------------|
+| `POSTGRES_DB` | Nombre de la base de datos | `alpha_db` |
+| `POSTGRES_USER` | Usuario de PostgreSQL | `alpha_user` |
+| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL | *(cambiar obligatoriamente)* |
+| `POSTGRES_HOST` | Host del servicio de base de datos | `alpha-db` |
+| `POSTGRES_PORT` | Puerto de PostgreSQL | `5432` |
+| `API_PORT` | Puerto de la API | `8000` |
+
+---
+
+## Base de datos
+
+El esquema se define en `database/schema.sql` y se cargará en el contenedor de PostgreSQL al inicializar la base de datos. Actualmente contiene únicamente la cabecera del esquema; las tablas se añadirán en las siguientes iteraciones.
+
+---
+
+## Roadmap
+
+1. **Estructura inicial** — organización de carpetas y ficheros base. *(en curso)*
+2. **Infraestructura** — `compose.yaml` con PostgreSQL y API funcionales.
+3. **Base de datos** — diseño e implementación del esquema en `schema.sql`.
+4. **Backend** — API REST con FastAPI y endpoint de estado `/health`.
+5. **Worker** — búsqueda automática periódica de publicaciones.
+6. **Frontend** — interfaz de consulta y filtrado.
+7. **Documentación y pruebas** — tests, documentación técnica y despliegue.
+
+---
+
+## Contribución
+
+Este es un proyecto académico. Para proponer cambios:
+
+1. Crea una rama con un nombre descriptivo (`feature/nueva-funcionalidad`, `fix/correccion`).
+2. Realiza los cambios y añade pruebas cuando sea posible.
+3. Abre una *pull request* describiendo la modificación.
+
+---
+
+## Licencia
+
+Pendiente de definir.
