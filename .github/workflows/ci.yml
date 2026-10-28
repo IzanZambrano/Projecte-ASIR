@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir la imagen de la API
+        run: docker build -t alpha-api:ci backend
+
+      - name: Validar los compose de cada máquina
+        run: |
+          for srv in srv-web srv-db srv-backup; do
+            echo "--- $srv"
+            cp infra/$srv/.env.example infra/$srv/.env
+            docker compose -f infra/$srv/compose.yaml config --quiet
+          done
+
+      - name: Validar la configuración de Nginx
+        run: |
+          mkdir -p /tmp/certs
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 -subj "/CN=ci" \
+            -keyout /tmp/certs/privkey.pem -out /tmp/certs/fullchain.pem
+          docker run --rm --add-host api:127.0.0.1 \
+            -v "$PWD/infra/srv-web/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro" \
+            -v /tmp/certs:/etc/nginx/certs:ro \
+            nginx:1.27-alpine nginx -t
+
+      - name: Revisar los scripts de shell
+        run: shellcheck infra/comun/*.sh scripts/*.sh database/init/*.sh

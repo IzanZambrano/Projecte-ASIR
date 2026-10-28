@@ -1,0 +1,18 @@
+# Métricas del sistema (CPU, RAM, disco, red) de las tres máquinas.
+# Si cambian las IPs, actualizar también docs/03-red.md.
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: node
+    static_configs:
+      - targets: ["192.168.56.10:9100"]
+        labels: { servidor: srv-web }
+      - targets: ["192.168.56.11:9100"]
+        labels: { servidor: srv-db }
+      - targets: ["192.168.56.12:9100"]
+        labels: { servidor: srv-backup }
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

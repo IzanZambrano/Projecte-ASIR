@@ -1,0 +1,3 @@
+# Los certificados se generan en el servidor y nunca se suben
+*
+!.gitignore

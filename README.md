@@ -12,7 +12,7 @@ Alpha Research tiene como objetivo centralizar publicaciones y estudios científ
 
 El repositorio recoge el desarrollo de la aplicación, la configuración de la infraestructura, la documentación técnica y el seguimiento del proyecto.
 
-> **Estado:** proyecto en fase inicial. La estructura del repositorio está definida, pero la lógica de la API, el esquema de base de datos y la orquestación con Docker están pendientes de implementación. Consulta el [Roadmap](#roadmap).
+> **Estado:** proyecto en fase inicial. La estructura y la infraestructura de las tres máquinas están definidas; la lógica de la API y la web están pendientes. Consulta el [Roadmap](#roadmap).
 
 ---
 
@@ -30,7 +30,7 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 
 - [ ] Registro y consulta de publicaciones científicas.
 - [ ] Búsqueda por palabras clave, autor, fecha y fuente.
-- [ ] Búsqueda automática periódica de nuevas publicaciones (worker).
+- [ ] Búsqueda automática periódica de nuevas publicaciones en PubMed.
 - [ ] Resúmenes automáticos de los estudios.
 - [ ] API REST para consulta de datos.
 - [ ] Interfaz web de consulta y filtrado.
@@ -45,8 +45,24 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 | Contenedores | Docker y Docker Compose |
 | Backend | Python + FastAPI |
 | Base de datos | PostgreSQL |
-| Frontend | Por definir |
-| Automatización | Worker de búsqueda periódica |
+| Frontend | HTML estático servido por Nginx |
+| Automatización | Ingesta periódica desde PubMed |
+| Proxy y HTTPS | Nginx |
+| Monitorización | Uptime Kuma, Prometheus, Grafana |
+
+---
+
+## Arquitectura
+
+La plataforma se despliega en **tres servidores**, cada uno con su propio Docker Compose:
+
+| Máquina | Servicios |
+|---------|-----------|
+| **srv-web** | Nginx (HTTPS, web estática) y la API FastAPI |
+| **srv-db** | PostgreSQL |
+| **srv-backup** | Copias de seguridad, Uptime Kuma, Prometheus y Grafana |
+
+Detalles en [docs/02-arquitectura.md](docs/02-arquitectura.md) y [docs/03-red.md](docs/03-red.md).
 
 ---
 
@@ -56,105 +72,75 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 Projecte-ASIR/
 ├── backend/                  # API FastAPI
 │   └── app/
-│       ├── main.py           # Punto de entrada de la API
-│       ├── api/              # Rutas y endpoints
-│       ├── services/         # Lógica de negocio
-│       └── db/               # Acceso a datos y modelos
+│       ├── main.py
+│       └── ingesta/          # Búsqueda automática en PubMed
+├── frontend/                 # Web estática que sirve Nginx
 ├── database/
-│   └── schema.sql            # Esquema de la base de datos
-├── frontend/                 # Interfaz web
-├── infra/
-│   └── compose.yaml          # Orquestación de servicios con Docker
-├── worker/                   # Búsqueda automática de publicaciones
-├── scripts/                  # Scripts de utilidad y automatización
-├── tests/                    # Pruebas del proyecto
-├── docs/                     # Documentación técnica
-├── .env.example              # Plantilla de variables de entorno
-└── README.md
+│   ├── schema.sql            # Tablas
+│   ├── init/                 # Usuarios y permisos al arrancar
+│   └── seed.sql              # Datos de prueba
+├── infra/                    # Una carpeta por máquina
+│   ├── comun/sistema-base.sh # SSH, ufw, fail2ban, Docker (igual en las 3)
+│   ├── srv-web/              # compose.yaml, .env.example, nginx/
+│   ├── srv-db/               # compose.yaml, .env.example, postgresql/
+│   └── srv-backup/           # compose.yaml, .env.example, prometheus/, grafana/
+├── scripts/                  # deploy.sh, backup.sh, restore.sh
+├── docs/                     # Documentación del proyecto
+└── .github/workflows/ci.yml  # Comprueba que todo se construye
 ```
 
-> Algunas carpetas se irán creando a medida que avance el desarrollo.
+El mismo repositorio se clona en las tres máquinas y cada una arranca solo su
+carpeta de `infra/`. Cada máquina tiene su `.env.example`; el `.env` real con
+las contraseñas solo existe en el servidor y **nunca se sube**.
 
 ---
 
-## Requisitos previos
+## Instalación
 
-- Linux (o entorno compatible)
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [Git](https://git-scm.com/)
-- Python 3.11 o superior (para ejecutar el backend fuera de Docker)
-- PostgreSQL 15 o superior (si no se usa Docker)
+Las guías de [docs/04-instalacion/](docs/04-instalacion/) permiten montar cada
+máquina desde cero. Orden recomendado:
 
----
+1. [Sistema base](docs/04-instalacion/sistema-base.md) — en las tres máquinas.
+2. [srv-db](docs/04-instalacion/srv-db.md)
+3. [srv-web](docs/04-instalacion/srv-web.md)
+4. [srv-backup](docs/04-instalacion/srv-backup.md)
 
-## Instalación y puesta en marcha
-
-> La infraestructura todavía está en desarrollo, por lo que estos pasos describen el flujo previsto y pueden no funcionar hasta completar la implementación.
-
-### 1. Clonar el repositorio
+Resumen, en cada máquina:
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/IzanZambrano/Projecte-ASIR.git
 cd Projecte-ASIR
+sudo ./infra/comun/sistema-base.sh srv-web     # o srv-db / srv-backup
+cp infra/srv-web/.env.example infra/srv-web/.env && nano infra/srv-web/.env
+./scripts/deploy.sh srv-web
 ```
-
-### 2. Configurar las variables de entorno
-
-Copia la plantilla y ajusta los valores:
-
-```bash
-cp .env.example .env
-```
-
-Edita `.env` y cambia, como mínimo, la contraseña de PostgreSQL. **Nunca subas el archivo `.env` al repositorio.**
-
-### 3. Levantar los servicios con Docker
-
-```bash
-docker compose -f infra/compose.yaml up -d
-```
-
-### 4. Comprobar el estado
-
-```bash
-docker compose -f infra/compose.yaml ps
-```
-
-La API quedará disponible en `http://localhost:8000` (según `API_PORT`).
 
 ---
 
-## Variables de entorno
+## Documentación
 
-Se definen en el archivo `.env` (basado en `.env.example`):
-
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| `POSTGRES_DB` | Nombre de la base de datos | `alpha_db` |
-| `POSTGRES_USER` | Usuario de PostgreSQL | `alpha_user` |
-| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL | *(cambiar obligatoriamente)* |
-| `POSTGRES_HOST` | Host del servicio de base de datos | `alpha-db` |
-| `POSTGRES_PORT` | Puerto de PostgreSQL | `5432` |
-| `API_PORT` | Puerto de la API | `8000` |
-
----
-
-## Base de datos
-
-El esquema se define en `database/schema.sql` y se cargará en el contenedor de PostgreSQL al inicializar la base de datos. Actualmente contiene únicamente la cabecera del esquema; las tablas se añadirán en las siguientes iteraciones.
+| Documento | Contenido |
+|-----------|-----------|
+| [01 Introducción](docs/01-introduccion.md) | Objetivos y alcance |
+| [02 Arquitectura](docs/02-arquitectura.md) | Diagrama y por qué tres máquinas |
+| [03 Red](docs/03-red.md) | IPs, puertos y tabla de comunicaciones |
+| [04 Instalación](docs/04-instalacion/) | Montaje de cada máquina paso a paso |
+| [05 Seguridad](docs/05-seguridad.md) | Medidas aplicadas en cada máquina |
+| [06 Copias](docs/06-copias.md) | Plan de copias y prueba de restauración |
+| [07 Monitorización](docs/07-monitorizacion.md) | Uptime Kuma, Prometheus y Grafana |
+| [08 Pruebas](docs/08-pruebas.md) | Qué se ha probado y resultados |
+| [09 Seguimiento](docs/09-seguimiento.md) | Diario, problemas y soluciones |
 
 ---
 
 ## Roadmap
 
-1. **Estructura inicial** — organización de carpetas y ficheros base. *(en curso)*
-2. **Infraestructura** — `compose.yaml` con PostgreSQL y API funcionales.
-3. **Base de datos** — diseño e implementación del esquema en `schema.sql`.
-4. **Backend** — API REST con FastAPI y endpoint de estado `/health`.
-5. **Worker** — búsqueda automática periódica de publicaciones.
-6. **Frontend** — interfaz de consulta y filtrado.
-7. **Documentación y pruebas** — tests, documentación técnica y despliegue.
+Cada fase es un *milestone* en GitHub y cada tarea una *issue* del tablero del proyecto.
+
+1. **Infraestructura** — tres máquinas con sistema base, Docker y red. *(en curso)*
+2. **Aplicación** — API, ingesta desde PubMed y web de consulta.
+3. **Seguridad** — HTTPS, cortafuegos, permisos de base de datos, pruebas.
+4. **Documentación** — guías de instalación, copias, monitorización y memoria.
 
 ---
 

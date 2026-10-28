@@ -1,0 +1,41 @@
+# srv-db: PostgreSQL + node-exporter
+# Arranque:  cd infra/srv-db && docker compose up -d
+#
+# Se usa network_mode: host para que el cortafuegos (ufw) controle de verdad
+# el puerto 5432. Con "ports:" Docker inserta sus propias reglas iptables y
+# se salta ufw (ver docs/05-seguridad.md).
+
+services:
+  alpha-db:
+    image: postgres:15
+    container_name: alpha-db
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./postgresql/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      # Orden de inicialización (solo con el volumen vacío):
+      - ../../database/init/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
+      - ../../database/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql:ro
+      - ../../database/init/03-permisos.sh:/docker-entrypoint-initdb.d/03-permisos.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    command: --path.rootfs=/host
+    volumes:
+      - /:/host:ro,rslave
+
+volumes:
+  pg_data:

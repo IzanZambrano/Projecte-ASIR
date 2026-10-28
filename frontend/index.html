@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alpha Research</title>
+</head>
+<body>
+  <h1>Alpha Research</h1>
+  <p>Estado de la API: <strong id="estado">comprobando…</strong></p>
+  <script>
+    fetch("/api/health")
+      .then(r => r.json())
+      .then(d => document.getElementById("estado").textContent = d.status)
+      .catch(() => document.getElementById("estado").textContent = "sin conexión");
+  </script>
+</body>
+</html>

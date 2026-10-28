@@ -1,0 +1,41 @@
+# srv-web: Nginx (HTTPS + web estática) -> API FastAPI
+# Arranque:  cd infra/srv-web && docker compose up -d --build
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: alpha-nginx
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ../../frontend:/usr/share/nginx/html:ro
+
+  api:
+    build: ../../backend
+    container_name: alpha-api
+    restart: unless-stopped
+    env_file: .env
+    # Sin "ports": solo es accesible a través de Nginx
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    command: --path.rootfs=/host
+    volumes:
+      - /:/host:ro,rslave
