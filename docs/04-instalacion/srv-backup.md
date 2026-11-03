@@ -25,9 +25,9 @@ chmod 600 .env
 
 | Servicio | URL |
 |----------|-----|
-| Uptime Kuma | http://192.168.56.12:3001 |
-| Grafana | http://192.168.56.12:3000 |
-| Prometheus | http://192.168.56.12:9090/targets |
+| Uptime Kuma | http://192.168.116.32:3001 |
+| Grafana | http://192.168.116.32:3000 |
+| Prometheus | http://192.168.116.32:9090/targets |
 
 ## 3. Configurar
 
@@ -38,10 +38,10 @@ chmod 600 .env
 
   | Monitor | Tipo | Destino |
   |---------|------|---------|
-  | Web | HTTP(s) (ignorar TLS) | `https://192.168.56.10` |
-  | API | HTTP(s) – palabra clave `ok` | `https://192.168.56.10/api/health` |
-  | Base de datos | Puerto TCP | `192.168.56.11:5432` |
+  | Web | HTTP(s) (ignorar TLS) | `https://192.168.116.30` |
+  | API | HTTP(s) – palabra clave `ok` | `https://192.168.116.30/api/health` |
+  | Base de datos | Puerto TCP | `192.168.116.31:5432` |
 
   > Para el monitor de la base de datos hay que permitir srv-backup en ufw
-  > de srv-db: `sudo ufw allow from 192.168.56.12 to any port 5432 proto tcp`
+  > de srv-db: `sudo ufw allow from 192.168.116.32 to any port 5432 proto tcp`
   > (pg_hba.conf seguirá rechazando el inicio de sesión).

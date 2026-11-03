@@ -41,7 +41,7 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 
 | Capa | Tecnología |
 |------|------------|
-| Sistema operativo | Linux |
+| Sistema operativo | Ubuntu Server (servidores) |
 | Contenedores | Docker y Docker Compose |
 | Backend | Python + FastAPI |
 | Base de datos | PostgreSQL |

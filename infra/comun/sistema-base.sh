@@ -1,5 +1,5 @@
 #!/bin/bash
-# Prepara una máquina Debian/Ubuntu recién instalada: paquetes, SSH, ufw,
+# Prepara una máquina Ubuntu Server (o Debian) recién instalada: paquetes, SSH, ufw,
 # fail2ban y Docker. Es igual en las tres máquinas salvo las reglas de ufw.
 #
 # Uso (como root):   ./sistema-base.sh srv-web|srv-db|srv-backup
@@ -10,10 +10,10 @@
 set -euo pipefail
 
 # --- Red del proyecto (debe coincidir con docs/03-red.md) ---------------------
-SRV_WEB=192.168.56.10
-SRV_DB=192.168.56.11
-SRV_BACKUP=192.168.56.12
-RED_ADMIN=192.168.56.0/24     # Desde donde se administra por SSH
+SRV_WEB=192.168.116.30
+SRV_DB=192.168.116.31
+SRV_BACKUP=192.168.116.32
+RED_ADMIN=192.168.116.0/24     # Desde donde se administra por SSH
 USUARIO_ADMIN=${SUDO_USER:-admin}
 # -----------------------------------------------------------------------------
 
@@ -26,6 +26,11 @@ esac
 # Evita quedarse fuera: el usuario admin debe existir y tener una clave SSH
 if [[ ! -s "$(getent passwd "$USUARIO_ADMIN" | cut -d: -f6)/.ssh/authorized_keys" ]]; then
     echo "$USUARIO_ADMIN no tiene ~/.ssh/authorized_keys; ejecuta antes ssh-copy-id" >&2
+    exit 1
+fi
+# El Docker en snap (casilla del instalador de Ubuntu) choca con el oficial
+if command -v snap >/dev/null && snap list docker >/dev/null 2>&1; then
+    echo "Docker está instalado como snap; quítalo antes: sudo snap remove --purge docker" >&2
     exit 1
 fi
 
@@ -49,8 +54,9 @@ PubkeyAuthentication yes
 MaxAuthTries 3
 AllowUsers $USUARIO_ADMIN copias
 CONF
+mkdir -p /run/sshd    # En Ubuntu 24.04+ SSH arranca por socket y puede no existir aún
 sshd -t
-systemctl reload ssh
+systemctl reload ssh 2>/dev/null || systemctl restart ssh
 
 echo "==> fail2ban para SSH"
 cat > /etc/fail2ban/jail.d/sshd.local <<CONF

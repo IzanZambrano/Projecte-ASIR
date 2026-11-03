@@ -49,7 +49,7 @@ Cuando srv-backup esté instalada:
 sudo ssh-keygen -t ed25519 -N '' -f /root/.ssh/id_ed25519
 sudo cat /root/.ssh/id_ed25519.pub
 # Pegar la clave en srv-backup: /home/copias/.ssh/authorized_keys
-sudo ssh copias@192.168.56.12 true          # aceptar la huella
+sudo ssh copias@192.168.116.32 true          # aceptar la huella
 sudo ~/Projecte-ASIR/scripts/backup.sh      # primera copia manual
 ```
 
