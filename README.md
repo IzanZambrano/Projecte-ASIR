@@ -45,7 +45,7 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 | Contenedores | Docker y Docker Compose |
 | Backend | Python + FastAPI |
 | Base de datos | PostgreSQL |
-| Frontend | HTML estático servido por Nginx |
+| Frontend | HTML, CSS y JavaScript sin librerías, servido por Nginx (estilo de Proyecto Alpha: verde #97b238, Roboto y Roboto Slab) |
 | Automatización | Ingesta periódica desde PubMed |
 | Proxy y HTTPS | Nginx |
 | Monitorización | Uptime Kuma, Prometheus, Grafana |

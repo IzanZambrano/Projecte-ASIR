@@ -10,7 +10,7 @@
 
 | Máquina | IP | SO | CPU / RAM / Disco (mínimo) |
 |---------|----|----|----------------------------|
-| srv-web | 192.168.116.30/16 | Ubuntu Server LTS | 1 / 2 GB / 20 GB |
+| srv-web | 192.168.248.33/16 | Ubuntu Server LTS | 1 / 2 GB / 20 GB |
 | srv-db | 192.168.116.31/16 | Ubuntu Server LTS | 2 / 2 GB / 20 GB |
 | srv-backup | 192.168.116.32/16 | Ubuntu Server LTS | 1 / 2 GB / 40 GB |
 | PC de administración | 192.168.116.16 (DHCP) | Manjaro | — |

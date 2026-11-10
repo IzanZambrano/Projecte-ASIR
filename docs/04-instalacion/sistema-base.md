@@ -6,7 +6,7 @@ se administran desde un PC con Manjaro. Datos de red en [03-red.md](../03-red.md
 
 | Máquina | Hostname | IP |
 |---------|----------|----|
-| Servidor 1 | `srv-web` | 192.168.116.30/16 |
+| Servidor 1 | `srv-web` | 192.168.248.33/16 |
 | Servidor 2 | `srv-db` | 192.168.116.31/16 |
 | Servidor 3 | `srv-backup` | 192.168.116.32/16 |
 
@@ -14,7 +14,7 @@ se administran desde un PC con Manjaro. Datos de red en [03-red.md](../03-red.md
 
 ```bash
 sudo pacman -S --needed openssh git nmap openbsd-netcat
-ping -c2 192.168.116.30      # .30, .31 y .32 NO deben responder (libres)
+ping -c2 192.168.248.33      # 192.168.248.33, 192.168.116.31 y .32 NO deben responder (libres)
 ssh-keygen -t ed25519        # solo si no hay clave
 ```
 
@@ -36,7 +36,7 @@ Arrancar desde el USB y, en el instalador:
    | Campo | Valor |
    |-------|-------|
    | Subnet | `192.168.0.0/16` |
-   | Address | `192.168.116.30` / `.31` / `.32` |
+   | Address | `192.168.248.33` (srv-web) / `192.168.116.31` (srv-db) / `192.168.116.32` (srv-backup) |
    | Gateway | `192.168.88.88` |
    | Name servers | `192.168.88.88` |
    | Search domains | `iesthosicodina.cat` |
@@ -64,7 +64,7 @@ network:
   ethernets:
     eno1:
       dhcp4: false
-      addresses: [192.168.116.30/16]
+      addresses: [192.168.248.33/16]
       routes:
         - to: default
           via: 192.168.88.88
@@ -94,8 +94,8 @@ curl -I https://google.com      # el ping a Internet puede estar bloqueado; curl
 Desde el PC de administración:
 
 ```bash
-ssh-copy-id admin@192.168.116.30
-ssh admin@192.168.116.30      # debe entrar sin pedir contraseña
+ssh-copy-id admin@192.168.248.33
+ssh admin@192.168.248.33      # debe entrar sin pedir contraseña
 ```
 
 ## 4. Clonar el repositorio y preparar el sistema
@@ -116,7 +116,7 @@ contraseña ni root, fail2ban, ufw con las reglas de esa máquina y Docker.
 ## 5. Comprobar
 
 ```bash
-exit && ssh admin@192.168.116.30   # volver a entrar (grupo docker)
+exit && ssh admin@192.168.248.33   # volver a entrar (grupo docker)
 docker run --rm hello-world
 sudo ufw status verbose
 sudo fail2ban-client status sshd
