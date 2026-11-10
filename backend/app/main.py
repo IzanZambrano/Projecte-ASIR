@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from app.api.papers import router as papers_router
+from app.config import settings
 from app.db import conectar
 from app.ingesta import programador
 
@@ -26,6 +27,7 @@ app = FastAPI(
     description="API para la búsqueda, recopilación y organización de publicaciones científicas",
     version="0.3.0",
     lifespan=ciclo_de_vida,
+    root_path=settings.api_root_path,
 )
 
 app.include_router(papers_router)

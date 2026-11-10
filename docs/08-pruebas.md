@@ -15,3 +15,5 @@
 | 11 | Ingesta de PubMed | `python -m app.ingesta.pubmed` | Lista de artículos | | |
 | 12 | Ingesta sin duplicados | `python -m app.ingesta.guardar 20` dos veces | 2ª vez: `actualizados: 20` | | |
 | 13 | Búsqueda diaria automática | Poner `INGESTA_HORA`/`INGESTA_MINUTO` 2 min más tarde y reiniciar la API | `/ingesta/estado` muestra la ejecución con `estado: ok` | | |
+| 14 | Buscador web | Abrir `https://<srv-web>/`, buscar `sarcoglycan`, filtrar por autor y abrir una ficha | Lista de resultados y ficha con enlaces a PubMed y DOI | | |
+| 15 | Documentación de la API | Abrir `https://<srv-web>/api/docs` | Swagger carga y permite probar `/papers` | | |

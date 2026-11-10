@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     ncbi_api_key: str | None = None
 
+    # Prefijo con el que Nginx publica la API ("/api" en srv-web; vacío en local)
+    api_root_path: str = ""
+
     # Búsqueda diaria en PubMed (app/ingesta/programador.py)
     ingesta_activa: bool = True
     ingesta_hora: int = Field(6, ge=0, le=23)
