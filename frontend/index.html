@@ -3,485 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alpha Research</title>
-  <meta name="description" content="Buscador de publicaciones científicas sobre sarcoglicanopatías">
-  <style>
-    :root {
-      --fondo: #f6f7f9;
-      --tarjeta: #ffffff;
-      --texto: #1c2430;
-      --suave: #5b6676;
-      --borde: #dde2e8;
-      --acento: #1f5fa8;
-      --acento-texto: #ffffff;
-      --ok: #1e7a46;
-      --error: #b3261e;
-      --sombra: 0 1px 2px rgba(20, 30, 45, .06), 0 2px 8px rgba(20, 30, 45, .05);
-      color-scheme: light;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --fondo: #12161c;
-        --tarjeta: #1a2029;
-        --texto: #e6eaf0;
-        --suave: #9aa5b4;
-        --borde: #2c3542;
-        --acento: #6ea8ec;
-        --acento-texto: #0d1117;
-        --ok: #5cc98a;
-        --error: #f08a82;
-        --sombra: none;
-        color-scheme: dark;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--fondo);
-      color: var(--texto);
-      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-    a { color: var(--acento); }
-    .contenedor { max-width: 920px; margin: 0 auto; padding: 0 16px; }
-
-    header { padding: 28px 0 8px; }
-    header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
-    header p { margin: 4px 0 0; color: var(--suave); }
-
-    form.busqueda {
-      margin: 20px 0 8px;
-      background: var(--tarjeta);
-      border: 1px solid var(--borde);
-      border-radius: 10px;
-      padding: 16px;
-      box-shadow: var(--sombra);
-    }
-    .fila { display: flex; gap: 8px; }
-    .filtros {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .filtros > div { min-width: 0; }
-    label { display: block; font-size: .85rem; color: var(--suave); margin-bottom: 4px; }
-    input {
-      width: 100%;
-      min-width: 0;
-      font: inherit;
-      color: inherit;
-      background: var(--fondo);
-      border: 1px solid var(--borde);
-      border-radius: 8px;
-      padding: 9px 11px;
-    }
-    input:focus-visible, button:focus-visible, a:focus-visible {
-      outline: 2px solid var(--acento);
-      outline-offset: 2px;
-    }
-    button {
-      font: inherit;
-      cursor: pointer;
-      border-radius: 8px;
-      padding: 9px 16px;
-      border: 1px solid var(--borde);
-      background: var(--tarjeta);
-      color: var(--texto);
-    }
-    button.principal { background: var(--acento); border-color: var(--acento); color: var(--acento-texto); font-weight: 600; }
-    button:disabled { opacity: .45; cursor: default; }
-    .acciones-filtro { display: flex; justify-content: flex-end; margin-top: 10px; }
-    .enlace-boton { background: none; border: none; color: var(--acento); padding: 4px 0; }
-
-    .resumen { color: var(--suave); font-size: .9rem; margin: 14px 0 10px; min-height: 1.5em; }
-
-    ol.resultados { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-    .articulo {
-      background: var(--tarjeta);
-      border: 1px solid var(--borde);
-      border-radius: 10px;
-      padding: 14px 16px;
-      box-shadow: var(--sombra);
-    }
-    .articulo h2 { font-size: 1.02rem; line-height: 1.35; margin: 0 0 6px; }
-    .articulo h2 button {
-      all: unset;
-      cursor: pointer;
-      color: var(--texto);
-    }
-    .articulo h2 button:hover { color: var(--acento); text-decoration: underline; }
-    .autores { color: var(--suave); font-size: .9rem; margin: 0; overflow-wrap: anywhere; }
-    .meta { font-size: .85rem; color: var(--suave); margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
-    .meta .revista { font-style: italic; }
-
-    .paginacion { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 18px 0; }
-    .paginacion span { color: var(--suave); font-size: .9rem; }
-
-    .vacio, .aviso-error {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--suave);
-      background: var(--tarjeta);
-      border: 1px dashed var(--borde);
-      border-radius: 10px;
-    }
-    .aviso-error { color: var(--error); }
-
-    dialog {
-      width: min(720px, calc(100% - 32px));
-      max-height: calc(100% - 48px);
-      border: 1px solid var(--borde);
-      border-radius: 12px;
-      padding: 0;
-      background: var(--tarjeta);
-      color: var(--texto);
-    }
-    dialog::backdrop { background: rgba(10, 15, 25, .55); }
-    .ficha { padding: 20px 22px; }
-    .ficha h2 { margin: 0 32px 10px 0; font-size: 1.2rem; line-height: 1.35; }
-    .ficha dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 14px 0; font-size: .92rem; }
-    .ficha dt { color: var(--suave); }
-    .ficha dd { margin: 0; overflow-wrap: anywhere; }
-    .ficha h3 { font-size: .95rem; margin: 18px 0 6px; }
-    .ficha .texto { white-space: pre-line; }
-    .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
-    .etiquetas li { font-size: .8rem; border: 1px solid var(--borde); border-radius: 999px; padding: 2px 10px; }
-    .cerrar { position: absolute; top: 12px; right: 12px; padding: 4px 10px; }
-    .enlaces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-
-    footer {
-      border-top: 1px solid var(--borde);
-      margin-top: 28px;
-      padding: 16px 0 28px;
-      font-size: .85rem;
-      color: var(--suave);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 18px;
-    }
-    .punto { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--suave); margin-right: 6px; vertical-align: middle; }
-    .punto.ok { background: var(--ok); }
-    .punto.error { background: var(--error); }
-
-    .oculto { display: none !important; }
-    @media (max-width: 640px) {
-      .filtros { grid-template-columns: 1fr 1fr; }
-      .filtros > div:first-child { grid-column: 1 / -1; }
-      .fila button { padding: 9px 12px; }
-    }
-  </style>
+  <title>Alpha Research · Publicaciones sobre sarcoglicanopatías</title>
+  <meta name="description" content="Buscador de publicaciones científicas sobre distrofia muscular de cinturas por déficit de sarcoglicanos, actualizado cada día desde PubMed.">
+  <meta name="theme-color" content="#97b238">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="fuentes/roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fuentes/roboto-slab-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-  <div class="contenedor">
-    <header>
-      <h1>Alpha Research</h1>
-      <p>Publicaciones científicas sobre sarcoglicanopatías, recopiladas automáticamente de PubMed.</p>
-    </header>
+  <a class="solo-lectores" href="#publicaciones">Saltar a las publicaciones</a>
 
-    <main>
-      <form class="busqueda" id="formulario" role="search">
-        <label for="q">Buscar en títulos y resúmenes</label>
-        <div class="fila">
-          <input id="q" name="q" type="search" placeholder="p. ej. sarcoglycan, gene therapy…" autocomplete="off">
-          <button class="principal" type="submit">Buscar</button>
-        </div>
-        <div class="filtros">
-          <div>
-            <label for="autor">Autor</label>
-            <input id="autor" name="autor" type="text" placeholder="Apellido" autocomplete="off">
-          </div>
-          <div>
-            <label for="desde">Desde</label>
-            <input id="desde" name="desde" type="date">
-          </div>
-          <div>
-            <label for="hasta">Hasta</label>
-            <input id="hasta" name="hasta" type="date">
-          </div>
-        </div>
-        <div class="acciones-filtro">
-          <button class="enlace-boton" type="button" id="limpiar">Limpiar filtros</button>
-        </div>
-      </form>
-
-      <p class="resumen" id="resumen" aria-live="polite"></p>
-      <ol class="resultados" id="resultados"></ol>
-
-      <nav class="paginacion oculto" id="paginacion" aria-label="Páginas de resultados">
-        <button type="button" id="anterior">← Anterior</button>
-        <span id="pagina-texto"></span>
-        <button type="button" id="siguiente">Siguiente →</button>
+  <header class="cabecera" id="cabecera">
+    <div class="contenedor">
+      <a class="marca" href="./" aria-label="Alpha Research, inicio">
+        <img src="img/logo.svg" alt="" width="44" height="44">
+        <span class="marca-texto">
+          <span class="marca-nombre">Alpha <span>Research</span></span>
+          <span class="marca-lema">Investigación en sarcoglicanopatías</span>
+        </span>
+      </a>
+      <nav class="menu" aria-label="Principal">
+        <a href="#publicaciones">Publicaciones</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="/api/docs">API</a>
+        <a class="boton boton-pequeno" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener">Colabora ↗</a>
       </nav>
-    </main>
+    </div>
+  </header>
 
-    <footer>
-      <span><span class="punto" id="estado-punto"></span>API: <strong id="estado">comprobando…</strong></span>
-      <span id="ingesta"></span>
-      <span><a href="/api/docs">Documentación de la API</a></span>
-    </footer>
-  </div>
+  <main>
+    <section class="portada" aria-labelledby="titular">
+      <div class="contenedor">
+        <p class="antetitulo">Distrofia muscular de cinturas · LGMD R3–R6</p>
+        <h1 id="titular">Toda la investigación sobre sarcoglicanopatías, <em>en un solo lugar.</em></h1>
+        <p class="entradilla">Cada día recopilamos las nuevas publicaciones científicas de PubMed para que pacientes, familias e investigadores las encuentren de forma sencilla.</p>
 
-  <dialog id="ficha" aria-labelledby="ficha-titulo">
-    <button class="cerrar" type="button" id="cerrar-ficha" aria-label="Cerrar">✕</button>
-    <div class="ficha" id="ficha-contenido"></div>
+        <form class="buscador" id="formulario" role="search" aria-label="Buscar publicaciones">
+          <div class="buscador-fila">
+            <div class="campo-busqueda">
+              <label class="solo-lectores" for="q">Buscar en títulos y resúmenes</label>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="q" name="q" type="search" placeholder="Busca por tema: sarcoglycan, gene therapy, variant…" autocomplete="off">
+            </div>
+            <button class="boton" type="submit">Buscar</button>
+          </div>
+          <div class="filtros">
+            <div>
+              <label for="autor">Autor</label>
+              <input id="autor" name="autor" type="text" placeholder="Apellido del autor" autocomplete="off">
+            </div>
+            <div>
+              <label for="desde">Publicado desde</label>
+              <input id="desde" name="desde" type="date">
+            </div>
+            <div>
+              <label for="hasta">Hasta</label>
+              <input id="hasta" name="hasta" type="date">
+            </div>
+            <button class="enlace-limpiar" type="button" id="limpiar">Limpiar</button>
+          </div>
+          <div class="sugerencias" id="sugerencias">
+            <span>Búsquedas frecuentes:</span>
+            <button type="button" data-q="limb-girdle">limb-girdle</button>
+            <button type="button" data-q="sarcoglycan">sarcoglycan</button>
+            <button type="button" data-q="variant">variant</button>
+            <button type="button" data-q="gene therapy">gene therapy</button>
+            <button type="button" data-q="dystrophy">dystrophy</button>
+          </div>
+        </form>
+
+        <div class="cifras">
+          <div class="cifra">
+            <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg></span>
+            <div><strong id="cifra-total">—</strong><span>publicaciones recopiladas</span></div>
+          </div>
+          <div class="cifra">
+            <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg></span>
+            <div><strong id="cifra-actualizacion">Cada día</strong><span id="cifra-actualizacion-texto">actualización automática</span></div>
+          </div>
+          <div class="cifra">
+            <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="M3 12h18M12 3c2.5 2.7 3.5 5.7 3.5 9s-1 6.3-3.5 9c-2.5-2.7-3.5-5.7-3.5-9s1-6.3 3.5-9z"/></svg></span>
+            <div><strong>PubMed</strong><span>fuente: NCBI · National Library of Medicine</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion" id="publicaciones" aria-labelledby="titulo-publicaciones">
+      <div class="contenedor">
+        <div class="seccion-cabecera">
+          <h2 id="titulo-publicaciones">Publicaciones</h2>
+          <p class="resumen" id="resumen" aria-live="polite"></p>
+        </div>
+        <ol class="resultados" id="resultados"></ol>
+        <nav class="paginacion oculto" id="paginacion" aria-label="Páginas de resultados"></nav>
+      </div>
+    </section>
+
+    <section class="seccion fondo-gris" id="como-funciona" aria-labelledby="titulo-como">
+      <div class="contenedor">
+        <div class="seccion-cabecera"><h2 id="titulo-como">Cómo funciona</h2></div>
+        <div class="pasos">
+          <article class="paso">
+            <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+            <h3>Búsqueda diaria</h3>
+            <p>Cada mañana el sistema consulta PubMed y recoge los artículos más recientes sobre distrofias de cinturas por déficit de sarcoglicanos.</p>
+          </article>
+          <article class="paso">
+            <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span>
+            <h3>Base de datos propia</h3>
+            <p>Los artículos se guardan en nuestro servidor PostgreSQL, sin duplicados y con copia de seguridad diaria.</p>
+          </article>
+          <article class="paso">
+            <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            <h3>Consulta abierta</h3>
+            <p>Cualquiera puede buscar por tema, autor o fecha y acceder al artículo original en PubMed o a través de su DOI.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="colabora" aria-labelledby="titulo-colabora">
+      <div class="contenedor">
+        <div>
+          <h2 id="titulo-colabora">Caminamos con la esperanza de encontrar una cura.</h2>
+          <p>La asociación Proyecto Alpha apoya a las personas afectadas y a sus familias e impulsa la investigación de estas enfermedades.</p>
+        </div>
+        <a class="boton" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener">Colabora con Proyecto Alpha ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-columnas">
+        <div>
+          <span class="marca-nombre">Alpha Research</span>
+          <p>Buscador de publicaciones científicas sobre sarcoglicanopatías. Proyecto del ciclo de Administración de Sistemas Informáticos en Red (ASIX).</p>
+          <p>La información de esta web no sustituye la opinión de un profesional sanitario.</p>
+        </div>
+        <div>
+          <h4>Explorar</h4>
+          <ul>
+            <li><a href="#publicaciones">Publicaciones</a></li>
+            <li><a href="#como-funciona">Cómo funciona</a></li>
+            <li><a href="/api/docs">Documentación de la API</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Enlaces</h4>
+          <ul>
+            <li><a href="https://www.proyectoalpha.org/" target="_blank" rel="noopener">Asociación Proyecto Alpha ↗</a></li>
+            <li><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed ↗</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pie-legal">
+        <span class="estado"><span class="punto" id="estado-punto"></span><span id="estado">Comprobando el servicio…</span></span>
+        <span id="ingesta"></span>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="ficha" id="ficha" aria-labelledby="ficha-titulo">
+    <button class="ficha-cerrar" type="button" id="cerrar-ficha" aria-label="Cerrar">✕</button>
+    <div class="ficha-contenido" id="ficha-contenido"></div>
   </dialog>
 
-  <script>
-    const API = "/api";
-    const POR_PAGINA = 20;
-    const $ = (id) => document.getElementById(id);
+  <div class="aviso oculto" id="aviso" role="status"></div>
 
-    // ---- Utilidades -------------------------------------------------------
-    // Crea un elemento. El texto siempre va como textContent (nunca HTML),
-    // así un título con "<script>" se muestra tal cual y no se ejecuta.
-    function el(etiqueta, props = {}, ...hijos) {
-      const nodo = document.createElement(etiqueta);
-      for (const [k, v] of Object.entries(props)) {
-        if (k === "texto") nodo.textContent = v;
-        else if (k.startsWith("on")) nodo.addEventListener(k.slice(2), v);
-        else nodo.setAttribute(k, v);
-      }
-      for (const h of hijos) if (h != null) nodo.append(h);
-      return nodo;
-    }
-
-    const formatoFecha = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
-    function fecha(iso) {
-      if (!iso) return "Sin fecha";
-      const [a, m, d] = iso.slice(0, 10).split("-").map(Number);
-      return formatoFecha.format(new Date(a, m - 1, d));
-    }
-    function fechaHora(iso) {
-      if (!iso) return "";
-      // La base de datos guarda la hora en UTC y sin zona: se la añadimos
-      if (!/(Z|[+-]\d\d:\d\d)$/.test(iso)) iso += "Z";
-      return new Date(iso).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" });
-    }
-    function autoresCortos(autores) {
-      if (!autores) return "Autores no disponibles";
-      const lista = autores.split(", ");
-      return lista.length > 6 ? lista.slice(0, 6).join(", ") + ` y ${lista.length - 6} más` : autores;
-    }
-
-    async function pedir(ruta) {
-      const r = await fetch(API + ruta, { headers: { Accept: "application/json" } });
-      if (!r.ok) {
-        const error = new Error(`HTTP ${r.status}`);
-        error.status = r.status;
-        throw error;
-      }
-      return r.json();
-    }
-
-    // ---- Estado en la URL (se puede compartir o recargar) -----------------
-    function leerURL() {
-      const p = new URLSearchParams(location.search);
-      return {
-        q: p.get("q") || "",
-        autor: p.get("autor") || "",
-        desde: p.get("desde") || "",
-        hasta: p.get("hasta") || "",
-        pagina: Math.max(1, parseInt(p.get("pagina"), 10) || 1),
-        id: p.get("id") || "",
-      };
-    }
-    function escribirURL(estado, reemplazar = false) {
-      const p = new URLSearchParams();
-      for (const k of ["q", "autor", "desde", "hasta"]) if (estado[k]) p.set(k, estado[k]);
-      if (estado.pagina > 1) p.set("pagina", estado.pagina);
-      if (estado.id) p.set("id", estado.id);
-      const url = location.pathname + (p.toString() ? "?" + p : "");
-      if (url !== location.pathname + location.search) {
-        history[reemplazar ? "replaceState" : "pushState"](null, "", url);
-      }
-    }
-
-    // ---- Búsqueda ---------------------------------------------------------
-    let peticionActual = 0;
-
-    async function buscar() {
-      const estado = leerURL();
-      for (const k of ["q", "autor", "desde", "hasta"]) $(k).value = estado[k];
-
-      const params = new URLSearchParams({ pagina: estado.pagina, por_pagina: POR_PAGINA });
-      for (const k of ["q", "autor", "desde", "hasta"]) if (estado[k]) params.set(k, estado[k]);
-
-      const id = ++peticionActual;
-      $("resumen").textContent = "Buscando…";
-      $("resultados").setAttribute("aria-busy", "true");
-
-      try {
-        const datos = await pedir(`/papers?${params}`);
-        if (id !== peticionActual) return; // llegó tarde: ya hay otra búsqueda
-        pintarResultados(datos, estado);
-      } catch (e) {
-        if (id !== peticionActual) return;
-        $("resultados").replaceChildren(
-          el("li", { class: "aviso-error", texto: "No se ha podido cargar la lista de publicaciones. Comprueba que la API está en marcha." })
-        );
-        $("resumen").textContent = "";
-        $("paginacion").classList.add("oculto");
-      } finally {
-        $("resultados").removeAttribute("aria-busy");
-      }
-    }
-
-    function pintarResultados(datos, estado) {
-      const { total, resultados } = datos;
-      const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-      const hayFiltros = estado.q || estado.autor || estado.desde || estado.hasta;
-
-      if (total === 0) {
-        $("resumen").textContent = "";
-        $("resultados").replaceChildren(el("li", {
-          class: "vacio",
-          texto: hayFiltros
-            ? "No hay publicaciones que coincidan con la búsqueda. Prueba con otras palabras o quita algún filtro."
-            : "Todavía no hay publicaciones. La búsqueda diaria en PubMed las irá añadiendo.",
-        }));
-        $("paginacion").classList.add("oculto");
-        return;
-      }
-
-      const desde = (estado.pagina - 1) * POR_PAGINA + 1;
-      const hasta = desde + resultados.length - 1;
-      $("resumen").textContent = `${total} ${total === 1 ? "publicación" : "publicaciones"}` +
-        (total > POR_PAGINA ? ` · mostrando ${desde}–${hasta}` : "") +
-        " · de la más reciente a la más antigua";
-
-      $("resultados").replaceChildren(...resultados.map((a) => el("li", { class: "articulo" },
-        el("h2", {}, el("button", { type: "button", texto: a.title, onclick: () => abrirFicha(a.id) })),
-        el("p", { class: "autores", texto: autoresCortos(a.authors) }),
-        el("p", { class: "meta" },
-          a.journal ? el("span", { class: "revista", texto: a.journal }) : null,
-          el("span", { texto: fecha(a.publication_date) }),
-          a.pmid ? el("span", { texto: `PMID ${a.pmid}` }) : null,
-        ),
-      )));
-
-      $("paginacion").classList.toggle("oculto", paginas <= 1);
-      $("pagina-texto").textContent = `Página ${estado.pagina} de ${paginas}`;
-      $("anterior").disabled = estado.pagina <= 1;
-      $("siguiente").disabled = estado.pagina >= paginas;
-    }
-
-    // ---- Ficha de un artículo --------------------------------------------
-    async function abrirFicha(id, desdeURL = false) {
-      if (!desdeURL) escribirURL({ ...leerURL(), id });
-      const contenido = $("ficha-contenido");
-      contenido.replaceChildren(el("p", { texto: "Cargando…" }));
-      if (!$("ficha").open) $("ficha").showModal();
-
-      try {
-        const a = await pedir(`/papers/${encodeURIComponent(id)}`);
-        const filas = [
-          ["Autores", a.authors || "No disponibles"],
-          ["Revista", a.journal],
-          ["Publicado", fecha(a.publication_date)],
-          ["PMID", a.pmid],
-          ["DOI", a.doi],
-          ["Fuente", a.source],
-          ["Añadido", fechaHora(a.created_at)],
-        ].filter(([, v]) => v);
-
-        const enlaces = el("div", { class: "enlaces" });
-        if (a.url) enlaces.append(el("a", { href: a.url, target: "_blank", rel: "noopener", texto: "Ver en PubMed ↗" }));
-        if (a.doi) enlaces.append(el("a", { href: `https://doi.org/${a.doi}`, target: "_blank", rel: "noopener", texto: "Abrir el artículo (DOI) ↗" }));
-
-        contenido.replaceChildren(...[
-          el("h2", { id: "ficha-titulo", texto: a.title }),
-          el("dl", {}, ...filas.flatMap(([k, v]) => [el("dt", { texto: k }), el("dd", { texto: v })])),
-          a.summary ? el("h3", { texto: "Resumen" }) : null,
-          a.summary ? el("p", { class: "texto", texto: a.summary }) : null,
-          a.abstract ? el("h3", { texto: "Abstract" }) : null,
-          a.abstract ? el("p", { class: "texto", texto: a.abstract }) : null,
-          a.keywords && a.keywords.length ? el("h3", { texto: "Palabras clave" }) : null,
-          a.keywords && a.keywords.length ? el("ul", { class: "etiquetas" }, ...a.keywords.map((k) => el("li", { texto: k }))) : null,
-          enlaces,
-        ].filter(Boolean));
-      } catch (e) {
-        contenido.replaceChildren(el("p", {
-          class: "aviso-error",
-          texto: e.status === 404 ? "Esta publicación no existe." : "No se ha podido cargar la publicación.",
-        }));
-      }
-    }
-
-    function cerrarFicha() {
-      if ($("ficha").open) $("ficha").close();
-    }
-    $("ficha").addEventListener("close", () => {
-      const estado = leerURL();
-      if (estado.id) escribirURL({ ...estado, id: "" });
-    });
-    $("cerrar-ficha").addEventListener("click", cerrarFicha);
-    $("ficha").addEventListener("click", (e) => { if (e.target === $("ficha")) cerrarFicha(); });
-
-    // ---- Eventos ----------------------------------------------------------
-    $("formulario").addEventListener("submit", (e) => {
-      e.preventDefault();
-      escribirURL({
-        q: $("q").value.trim(),
-        autor: $("autor").value.trim(),
-        desde: $("desde").value,
-        hasta: $("hasta").value,
-        pagina: 1,
-      });
-      buscar();
-    });
-    $("limpiar").addEventListener("click", () => {
-      escribirURL({ pagina: 1 });
-      buscar();
-      $("q").focus();
-    });
-    function irAPagina(delta) {
-      const estado = leerURL();
-      escribirURL({ ...estado, pagina: estado.pagina + delta, id: "" });
-      buscar();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    $("anterior").addEventListener("click", () => irAPagina(-1));
-    $("siguiente").addEventListener("click", () => irAPagina(1));
-
-    // Botones atrás/adelante del navegador
-    window.addEventListener("popstate", () => {
-      const estado = leerURL();
-      buscar();
-      if (estado.id) abrirFicha(estado.id, true); else cerrarFicha();
-    });
-
-    // ---- Pie: estado de la API y de la búsqueda diaria --------------------
-    async function comprobarEstado() {
-      try {
-        const salud = await pedir("/health");
-        $("estado").textContent = salud.database === "ok" ? "en marcha" : "sin base de datos";
-        $("estado-punto").className = "punto ok";
-      } catch {
-        $("estado").textContent = "sin conexión";
-        $("estado-punto").className = "punto error";
-      }
-      try {
-        const ing = await pedir("/ingesta/estado");
-        const partes = [];
-        if (ing.ultima_ejecucion) {
-          const u = ing.ultima_ejecucion;
-          partes.push(u.estado === "ok"
-            ? `Última búsqueda en PubMed: ${fechaHora(u.fin)} (${u.resultado.nuevos} nuevas)`
-            : `La última búsqueda en PubMed falló (${fechaHora(u.fin)})`);
-        }
-        if (ing.proxima_ejecucion) partes.push(`Próxima: ${fechaHora(ing.proxima_ejecucion)}`);
-        else if (!ing.activa) partes.push("Búsqueda diaria desactivada");
-        $("ingesta").textContent = partes.join(" · ");
-      } catch {
-        $("ingesta").textContent = "";
-      }
-    }
-
-    // ---- Arranque ---------------------------------------------------------
-    escribirURL(leerURL(), true);
-    buscar();
-    comprobarEstado();
-    if (leerURL().id) abrirFicha(leerURL().id, true);
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
