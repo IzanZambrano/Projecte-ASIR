@@ -1,0 +1,18 @@
+"""Configuración de la API, leída de variables de entorno o de backend/.env."""
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "alpha_db"
+    postgres_user: str
+    postgres_password: str
+
+    ncbi_api_key: str | None = None
+
+
+settings = Settings()
