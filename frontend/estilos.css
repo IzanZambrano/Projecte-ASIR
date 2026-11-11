@@ -97,40 +97,26 @@ a:hover { color: var(--verde-boton); }
 }
 .menu a:not(.boton):hover { color: var(--verde-oscuro); border-bottom-color: var(--verde); }
 
-/* ---------- Selector de idioma ---------- */
-.idioma { position: relative; padding-left: 24px; border-left: 1px solid var(--borde); }
+/* ---------- Selector de idioma (igual que proyectoalpha.org: solo banderas) ---------- */
+.idioma { position: relative; }
 .idioma-boton {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 2px; border: 0; background: none; cursor: pointer;
-  font: 500 14px/1 var(--letra); letter-spacing: .06em; color: var(--titulo);
-  border-bottom: 2px solid transparent;
-  transition: color .15s, border-color .15s;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 2px 8px; border: 0; background: none; cursor: pointer;
+  border-bottom: 2px solid var(--verde);
 }
-.idioma-boton:hover, .idioma-boton[aria-expanded="true"] { color: var(--verde-oscuro); border-bottom-color: var(--verde); }
-.idioma-boton img, .idioma-lista img {
-  width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
-}
-.idioma-flecha { transition: transform .2s; }
-.idioma-boton[aria-expanded="true"] .idioma-flecha { transform: rotate(180deg); }
+.idioma-boton img, .idioma-lista img { width: 18px; height: 12px; object-fit: cover; }
+.idioma-boton:hover img, .idioma-boton[aria-expanded="true"] img { opacity: .8; }
 .idioma-lista {
-  position: absolute; top: calc(100% + 12px); right: 0; z-index: 30;
-  min-width: 190px; margin: 0; padding: 6px 0; list-style: none;
-  background: #fff; border-top: 3px solid var(--verde); border-radius: 0 0 var(--radio) var(--radio);
-  box-shadow: var(--sombra-alta);
-  animation: idioma-aparece .15s ease-out;
+  position: absolute; top: calc(100% + 6px); left: 50%; translate: -50% 0; z-index: 30;
+  margin: 0; padding: 10px 0; list-style: none;
+  background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
 }
-@keyframes idioma-aparece { from { opacity: 0; transform: translateY(-4px); } }
 .idioma-lista button {
-  display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 11px 18px; border: 0; background: none; cursor: pointer; text-align: left;
-  font: 400 15px/1.2 var(--letra); color: var(--titulo);
-  border-left: 3px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  padding: 9px 20px; border: 0; background: none; cursor: pointer;
 }
-.idioma-lista button:hover, .idioma-lista button:focus-visible { background: var(--fondo-gris); color: var(--verde-oscuro); outline: none; }
-.idioma-lista button[aria-checked="true"] { font-weight: 500; color: var(--verde-oscuro); border-left-color: var(--verde); }
-.idioma-nombre { flex: 1; }
-.idioma-cod { font-size: 12px; letter-spacing: .08em; color: var(--suave); }
+.idioma-lista button:hover img, .idioma-lista button:focus-visible img { outline: 2px solid var(--verde); outline-offset: 2px; }
+.idioma-lista button:focus-visible { outline: none; }
 
 /* ---------- Portada ---------- */
 .portada {
@@ -370,8 +356,7 @@ dialog.ficha[open] { animation: aparecer .18s ease-out; }
   .marca-nombre { font-size: 18px; }
   .marca-lema { display: none; }
   .menu .boton { padding: 10px 12px; font-size: 12px; }
-  .menu { gap: 12px; }
-  .idioma { padding-left: 12px; }
+  .menu { gap: 14px; }
   .portada { padding: 44px 0 40px; }
   .portada .entradilla { font-size: 16px; }
   .buscador { padding: 16px; }
