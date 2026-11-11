@@ -389,7 +389,7 @@ function pintarSelector() {
   if (!boton || !lista) return;
 
   boton.querySelector("img").src = IDIOMAS[idiomaActual].bandera;
-  boton.querySelector(".idioma-codigo").textContent = idiomaActual.toUpperCase();
+  boton.title = IDIOMAS[idiomaActual].nombre;
   boton.setAttribute("aria-label", `${t("idioma.boton")} (${IDIOMAS[idiomaActual].nombre})`);
 
   lista.replaceChildren(...Object.entries(IDIOMAS).map(([codigo, idioma]) => {
@@ -400,14 +400,10 @@ function pintarSelector() {
     b.setAttribute("aria-checked", codigo === idiomaActual ? "true" : "false");
     b.lang = codigo;
     const img = document.createElement("img");
-    img.src = idioma.bandera; img.alt = ""; img.width = 20; img.height = 20;
-    const nombre = document.createElement("span");
-    nombre.className = "idioma-nombre";
-    nombre.textContent = idioma.nombre;
-    const cod = document.createElement("span");
-    cod.className = "idioma-cod";
-    cod.textContent = codigo.toUpperCase();
-    b.append(img, nombre, cod);
+    b.title = idioma.nombre;              // como en la web de Proyecto Alpha: solo banderas
+    b.setAttribute("aria-label", idioma.nombre);
+    img.src = idioma.bandera; img.alt = ""; img.width = 18; img.height = 12;
+    b.append(img);
     b.addEventListener("click", () => { cerrarSelector(); cambiarIdioma(codigo); boton.focus(); });
     li.append(b);
     return li;
