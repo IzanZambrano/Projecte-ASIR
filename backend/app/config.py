@@ -25,5 +25,10 @@ class Settings(BaseSettings):
     ingesta_zona_horaria: str = "Europe/Madrid"
     ingesta_max_resultados: int = Field(50, ge=1, le=500)
 
+    # Traductor LibreTranslate (servicio "traductor" de srv-web). Vacío = sin traducir.
+    traductor_url: str = ""
+    traductor_api_key: str | None = None
+    traductor_idiomas: str = "es,ca"      # idiomas a los que se traduce (el original es inglés)
+
 
 settings = Settings()

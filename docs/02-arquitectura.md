@@ -7,6 +7,7 @@ flowchart LR
     U[Usuario] -- HTTPS 443 --> N
     subgraph srv-web
         N[Nginx] --> A[API FastAPI]
+        A --> T[Traductor LibreTranslate]
     end
     subgraph srv-db
         P[(PostgreSQL)]
@@ -27,7 +28,7 @@ flowchart LR
 
 | Máquina | Función | Motivo de separarla |
 |---------|---------|---------------------|
-| **srv-web** | Nginx (HTTPS) + API + web | Es la única expuesta a los usuarios. Si se compromete, los datos están en otra máquina. |
+| **srv-web** | Nginx (HTTPS) + API + web + traductor | Es la única expuesta a los usuarios. Si se compromete, los datos están en otra máquina. |
 | **srv-db** | PostgreSQL | Solo acepta conexiones de srv-web. Se puede actualizar o restaurar sin tocar la web. |
 | **srv-backup** | Copias y monitorización | Si srv-db se pierde, las copias siguen a salvo. Vigila a las otras dos desde fuera, así que detecta caídas aunque una máquina no responda. |
 
@@ -39,4 +40,5 @@ flowchart LR
 | Un solo repositorio para las tres máquinas | Un repositorio por máquina | Cada máquina arranca solo su `infra/<máquina>/`, pero el código y la documentación van juntos. |
 | PostgreSQL | MySQL/MariaDB | _Completar_ |
 | FastAPI | Flask/Django | Documentación automática de la API (`/docs`), validación de datos. |
+| LibreTranslate propio para traducir títulos y resúmenes | Google Translate / DeepL (API de pago) | Gratis, sin límite de uso y los textos no salen de nuestro servidor. Se traduce una vez al guardar el artículo, no en cada visita. |
 | Prometheus + Grafana + Uptime Kuma | Zabbix | _Completar_ |
