@@ -6,6 +6,7 @@ const API = "/api";
 const POR_PAGINA = 10;
 const FILTROS = ["q", "autor", "desde", "hasta"];
 const $ = (id) => document.getElementById(id);
+const { t, locale } = window.I18N; // textos traducidos (i18n.js)
 
 // ---------------------------------------------------------------------------
 // Utilidades
@@ -41,17 +42,17 @@ async function pedir(ruta) {
   return r.json();
 }
 
-const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-
 function partesFecha(iso) {
   if (!iso) return null;
   const [a, m, d] = iso.slice(0, 10).split("-").map(Number);
-  return { dia: d, mes: MESES[m - 1], anio: a, fecha: new Date(a, m - 1, d) };
+  const fecha = new Date(a, m - 1, d);
+  const mes = fecha.toLocaleDateString(locale(), { month: "short" }).replace(".", "");
+  return { dia: d, mes, anio: a, fecha };
 }
 
 function fechaLarga(iso) {
   const p = partesFecha(iso);
-  return p ? p.fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) : "Sin fecha";
+  return p ? p.fecha.toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" }) : t("fecha.sin");
 }
 
 // La base de datos guarda las horas en UTC y sin zona horaria: se la añadimos.
@@ -62,30 +63,30 @@ function aFecha(iso) {
 
 function fechaHora(iso) {
   if (!iso) return "";
-  return aFecha(iso).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" });
+  return aFecha(iso).toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" });
 }
 
 function cuando(iso) {
   // "hoy a las 06:00", "mañana a las 06:00" o la fecha
   const f = aFecha(iso);
-  const hora = f.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  const hora = f.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   const dia = new Date(f); dia.setHours(0, 0, 0, 0);
   const dif = Math.round((dia - hoy) / 86400000);
-  if (dif === 0) return `hoy a las ${hora}`;
-  if (dif === 1) return `mañana a las ${hora}`;
-  if (dif === -1) return `ayer a las ${hora}`;
-  return `${f.toLocaleDateString("es-ES", { day: "numeric", month: "short" })} a las ${hora}`;
+  if (dif === 0) return t("fecha.hoy", { hora });
+  if (dif === 1) return t("fecha.manana", { hora });
+  if (dif === -1) return t("fecha.ayer", { hora });
+  return t("fecha.dia", { dia: f.toLocaleDateString(locale(), { day: "numeric", month: "short" }), hora });
 }
 
 function autoresCortos(autores, max = 6) {
-  if (!autores) return "Autores no disponibles";
+  if (!autores) return t("autores.no");
   const lista = autores.split(", ");
-  return lista.length > max ? `${lista.slice(0, max).join(", ")} y ${lista.length - max} más` : autores;
+  return lista.length > max ? t("autores.mas", { lista: lista.slice(0, max).join(", "), n: lista.length - max }) : autores;
 }
 
 function numero(n) {
-  return n.toLocaleString("es-ES");
+  return n.toLocaleString(locale());
 }
 
 let temporizadorAviso;
@@ -147,7 +148,7 @@ async function buscar() {
   const id = ++peticionActual;
   $("resultados").setAttribute("aria-busy", "true");
   poner($("resultados"), ...esqueleto());
-  $("resumen").textContent = "Buscando…";
+  $("resumen").textContent = t("buscando");
 
   try {
     const datos = await pedir(`/papers?${params}`);
@@ -158,8 +159,8 @@ async function buscar() {
     $("resumen").textContent = "";
     $("paginacion").classList.add("oculto");
     poner($("resultados"), el("li", { class: "mensaje error" },
-      el("strong", { texto: "No se han podido cargar las publicaciones" }),
-      "Comprueba tu conexión o vuelve a intentarlo en unos minutos.",
+      el("strong", { texto: t("error.cargar") }),
+      t("error.cargar.p"),
     ));
   } finally {
     $("resultados").removeAttribute("aria-busy");
@@ -171,17 +172,17 @@ function tarjeta(a) {
   return el("li", { class: "articulo", onclick: (e) => { if (!e.target.closest("a")) abrirFicha(a.id); } },
     el("div", { class: "fecha-bloque", "aria-hidden": "true" },
       f ? [el("span", { class: "dia", texto: f.dia }), el("span", { class: "mes", texto: f.mes }), el("span", { class: "anio", texto: f.anio })]
-        : el("span", { class: "mes", texto: "s/f" }),
+        : el("span", { class: "mes", texto: t("fecha.sf") }),
     ),
     el("div", { class: "articulo-cuerpo" },
       a.journal && el("p", { class: "revista", texto: a.journal }),
       el("h3", {}, el("button", { type: "button", texto: a.title })),
       el("p", { class: "autores", texto: autoresCortos(a.authors) }),
       el("div", { class: "articulo-pie" },
-        el("span", { class: "solo-lectores", texto: `Publicado el ${fechaLarga(a.publication_date)}.` }),
+        el("span", { class: "solo-lectores", texto: t("tarjeta.publicado", { fecha: fechaLarga(a.publication_date) }) }),
         a.pmid && el("span", { class: "etiqueta", texto: `PMID ${a.pmid}` }),
         a.doi && el("span", { class: "etiqueta", texto: "DOI" }),
-        el("span", { class: "ver-ficha", "aria-hidden": "true", texto: "Ver ficha →" }),
+        el("span", { class: "ver-ficha", "aria-hidden": "true", texto: t("tarjeta.ver") }),
       ),
     ),
   );
@@ -195,20 +196,18 @@ function pintarResultados({ total, resultados }, estado) {
     $("resumen").textContent = "";
     $("paginacion").classList.add("oculto");
     poner($("resultados"), el("li", { class: "mensaje" },
-      el("strong", { texto: hayFiltros ? "No hay resultados" : "Todavía no hay publicaciones" }),
-      hayFiltros
-        ? "Prueba con otras palabras, en inglés, o quita algún filtro."
-        : "La búsqueda diaria en PubMed las irá añadiendo automáticamente.",
+      el("strong", { texto: hayFiltros ? t("res.ninguno") : t("res.vacio") }),
+      hayFiltros ? t("res.ninguno.p") : t("res.vacio.p"),
     ));
     return;
   }
 
   const desde = (estado.pagina - 1) * POR_PAGINA + 1;
   const hasta = desde + resultados.length - 1;
-  const busqueda = estado.q ? ` para «${estado.q}»` : "";
+  const busqueda = estado.q ? t("res.para", { q: estado.q }) : "";
   $("resumen").textContent = total > POR_PAGINA
-    ? `${desde}–${hasta} de ${numero(total)} resultados${busqueda} · más recientes primero`
-    : `${numero(total)} ${total === 1 ? "resultado" : "resultados"}${busqueda} · más recientes primero`;
+    ? t("res.rango", { desde, hasta, total: numero(total), busqueda })
+    : t(total === 1 ? "res.uno" : "res.varios", { total: numero(total), busqueda });
 
   poner($("resultados"), ...resultados.map(tarjeta));
   pintarPaginacion(estado.pagina, paginas);
@@ -222,16 +221,16 @@ function pintarPaginacion(actual, paginas) {
   // 1 … 4 5 [6] 7 8 … 20
   const numeros = new Set([1, paginas, actual - 1, actual, actual + 1].filter((n) => n >= 1 && n <= paginas));
   const lista = [...numeros].sort((a, b) => a - b);
-  const botones = [el("button", { type: "button", "aria-label": "Página anterior", disabled: actual <= 1, onclick: () => irAPagina(actual - 1), texto: "←" })];
+  const botones = [el("button", { type: "button", "aria-label": t("pag.anterior"), disabled: actual <= 1, onclick: () => irAPagina(actual - 1), texto: "←" })];
   lista.forEach((n, i) => {
     if (i > 0 && n - lista[i - 1] > 1) botones.push(el("span", { class: "puntos", texto: "…" }));
     botones.push(el("button", {
-      type: "button", texto: n, "aria-label": `Página ${n}`,
+      type: "button", texto: n, "aria-label": t("pag.n", { n }),
       "aria-current": n === actual ? "page" : null,
       onclick: () => irAPagina(n),
     }));
   });
-  botones.push(el("button", { type: "button", "aria-label": "Página siguiente", disabled: actual >= paginas, onclick: () => irAPagina(actual + 1), texto: "→" }));
+  botones.push(el("button", { type: "button", "aria-label": t("pag.siguiente"), disabled: actual >= paginas, onclick: () => irAPagina(actual + 1), texto: "→" }));
   poner(nav, ...botones);
 }
 
@@ -246,7 +245,7 @@ function irAPagina(n) {
 // ---------------------------------------------------------------------------
 
 function cita(a) {
-  const anio = a.publication_date ? a.publication_date.slice(0, 4) : "s. f.";
+  const anio = a.publication_date ? a.publication_date.slice(0, 4) : t("cita.sf");
   return [autoresCortos(a.authors, 6) + ".", a.title, a.journal ? `${a.journal}.` : "", `${anio}.`,
     a.doi ? `doi:${a.doi}.` : "", a.pmid ? `PMID: ${a.pmid}.` : ""].filter(Boolean).join(" ");
 }
@@ -264,48 +263,61 @@ async function copiarCita(a) {
     document.execCommand("copy");
     area.remove();
   }
-  avisar("Cita copiada al portapapeles");
+  avisar(t("ficha.citaOk"));
 }
 
 async function abrirFicha(id, desdeURL = false) {
   if (!desdeURL) escribirURL({ ...leerURL(), id });
   const contenido = $("ficha-contenido");
-  poner(contenido, el("p", { texto: "Cargando…" }));
+  poner(contenido, el("p", { texto: t("ficha.cargando") }));
   if (!$("ficha").open) $("ficha").showModal();
 
   try {
     const a = await pedir(`/papers/${encodeURIComponent(id)}`);
     const datos = [
-      ["Autores", a.authors || "No disponibles"],
-      ["Revista", a.journal],
-      ["Publicado", fechaLarga(a.publication_date)],
+      [t("ficha.autores"), a.authors || t("ficha.autores.no")],
+      [t("ficha.revista"), a.journal],
+      [t("ficha.publicado"), fechaLarga(a.publication_date)],
       ["PMID", a.pmid],
       ["DOI", a.doi],
-      ["Fuente", a.source],
-      ["Añadido", a.created_at && fechaHora(a.created_at)],
+      [t("ficha.fuente"), a.source],
+      [t("ficha.anadido"), a.created_at && fechaHora(a.created_at)],
     ].filter(([, v]) => v);
 
     const tieneTexto = a.summary || a.abstract;
+    // Enlace a PubMed: se construye con el PMID (siempre válido); la url guardada es la alternativa
+    const urlPubmed = a.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(a.pmid)}/` : a.url;
     poner(contenido, 
       a.journal && el("p", { class: "revista", texto: a.journal }),
       el("h2", { id: "ficha-titulo", texto: a.title }),
       el("dl", {}, datos.map(([k, v]) => [el("dt", { texto: k }), el("dd", { texto: v })])),
-      a.summary && [el("h3", { texto: "Resumen" }), el("p", { class: "texto", texto: a.summary })],
+      a.summary && [el("h3", { texto: t("ficha.resumen") }), el("p", { class: "texto", texto: a.summary })],
       a.abstract && [el("h3", { texto: "Abstract" }), el("p", { class: "texto", texto: a.abstract })],
-      !tieneTexto && el("p", { class: "nota", texto: "El resumen completo del artículo está disponible en PubMed." }),
-      a.keywords?.length > 0 && [el("h3", { texto: "Palabras clave" }), el("ul", { class: "palabras" }, a.keywords.map((k) => el("li", { texto: k })))],
+      !tieneTexto && el("p", { class: "nota", texto: t("ficha.sinResumen") }),
+      a.keywords?.length > 0 && [el("h3", { texto: t("ficha.claves") }), el("ul", { class: "palabras" }, a.keywords.map((k) => el("li", { texto: k })))],
       el("div", { class: "ficha-acciones" },
-        a.url && el("a", { class: "boton", href: a.url, target: "_blank", rel: "noopener", texto: "Ver en PubMed ↗" }),
-        a.doi && el("a", { class: "boton boton-borde", href: `https://doi.org/${a.doi}`, target: "_blank", rel: "noopener", texto: "Texto completo ↗" }),
-        el("button", { class: "boton boton-borde", type: "button", texto: "Copiar cita", onclick: () => copiarCita(a) }),
+        urlPubmed && el("a", { class: "boton", href: urlPubmed, target: "_blank", rel: "noopener noreferrer", texto: t("ficha.pubmed"), onclick: abrirEnlaceExterno }),
+        a.doi && el("a", { class: "boton boton-borde", href: `https://doi.org/${a.doi}`, target: "_blank", rel: "noopener noreferrer", texto: t("ficha.doi"), onclick: abrirEnlaceExterno }),
+        el("button", { class: "boton boton-borde", type: "button", texto: t("ficha.cita"), onclick: () => copiarCita(a) }),
       ),
     );
   } catch (e) {
     poner(contenido, el("div", { class: "mensaje error" },
-      el("strong", { texto: e.status === 404 ? "Publicación no encontrada" : "No se ha podido cargar" }),
-      e.status === 404 ? "Puede que el enlace sea incorrecto." : "Vuelve a intentarlo en unos minutos.",
+      el("strong", { texto: e.status === 404 ? t("ficha.noEncontrada") : t("ficha.error") }),
+      e.status === 404 ? t("ficha.noEncontrada.p") : t("ficha.error.p"),
     ));
   }
+}
+
+// Los enlaces externos de la ficha se abren a mano en una pestaña nueva: así
+// el clic no depende del <dialog> modal ni de otros manejadores de la página.
+function abrirEnlaceExterno(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const url = e.currentTarget.href;
+  const ventana = window.open(url, "_blank");
+  if (ventana) ventana.opener = null; // la página externa no puede tocar la nuestra
+  else location.href = url;           // si el navegador bloquea la pestaña, se abre aquí
 }
 
 function cerrarFicha() {
@@ -320,10 +332,10 @@ async function cargarEstado() {
   try {
     const salud = await pedir("/health");
     const ok = salud.database === "ok";
-    $("estado").textContent = ok ? "Servicio en funcionamiento" : "Base de datos no disponible";
+    $("estado").textContent = ok ? t("estado.ok") : t("estado.sinBD");
     $("estado-punto").className = `punto ${ok ? "ok" : "error"}`;
   } catch {
-    $("estado").textContent = "Servicio no disponible";
+    $("estado").textContent = t("estado.caido");
     $("estado-punto").className = "punto error";
   }
 
@@ -337,14 +349,14 @@ async function cargarEstado() {
     const u = ing.ultima_ejecucion;
     if (u && u.estado === "ok") {
       $("cifra-actualizacion").textContent = cuando(u.fin).replace(/^./, (c) => c.toUpperCase());
-      $("cifra-actualizacion-texto").textContent = "última actualización desde PubMed";
+      $("cifra-actualizacion-texto").textContent = t("cifras.ultima");
     } else if (ing.activa) {
-      $("cifra-actualizacion").textContent = `Cada día, ${ing.hora} h`;
-      $("cifra-actualizacion-texto").textContent = "actualización automática desde PubMed";
+      $("cifra-actualizacion").textContent = t("cifras.cadaDiaHora", { hora: ing.hora });
+      $("cifra-actualizacion-texto").textContent = t("cifras.autoPubmed");
     }
     const partes = [];
-    if (u) partes.push(u.estado === "ok" ? `Última búsqueda: ${fechaHora(u.fin)} (${u.resultado.nuevos} nuevas)` : `La última búsqueda falló (${fechaHora(u.fin)})`);
-    if (ing.proxima_ejecucion) partes.push(`Próxima: ${cuando(ing.proxima_ejecucion)}`);
+    if (u) partes.push(u.estado === "ok" ? t("ingesta.ultima", { fecha: fechaHora(u.fin), nuevos: u.resultado.nuevos }) : t("ingesta.fallo", { fecha: fechaHora(u.fin) }));
+    if (ing.proxima_ejecucion) partes.push(t("ingesta.proxima", { cuando: cuando(ing.proxima_ejecucion) }));
     $("ingesta").textContent = partes.join(" · ");
   } catch { /* sin datos de la búsqueda diaria */ }
 }
@@ -396,6 +408,14 @@ window.addEventListener("scroll", marcarCabecera, { passive: true });
 // ---------------------------------------------------------------------------
 // Arranque
 // ---------------------------------------------------------------------------
+// Al cambiar de idioma se vuelven a pintar los textos que genera este archivo
+window.I18N.alCambiar(() => {
+  buscar();
+  cargarEstado();
+  const { id } = leerURL();
+  if (id && $("ficha").open) abrirFicha(id, true);
+});
+
 escribirURL(leerURL(), true);
 marcarCabecera();
 buscar();

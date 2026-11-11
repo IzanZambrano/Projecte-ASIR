@@ -12,22 +12,28 @@
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-  <a class="solo-lectores" href="#publicaciones">Saltar a las publicaciones</a>
+  <a class="solo-lectores" href="#publicaciones" data-i18n="saltar">Saltar a las publicaciones</a>
 
   <header class="cabecera" id="cabecera">
     <div class="contenedor">
-      <a class="marca" href="./" aria-label="Alpha Research, inicio">
+      <a class="marca" href="./" aria-label="Alpha Research, inicio" data-i18n-aria="marca.inicio">
         <img src="img/logo.svg" alt="" width="44" height="44">
         <span class="marca-texto">
           <span class="marca-nombre">Alpha <span>Research</span></span>
-          <span class="marca-lema">Investigación en sarcoglicanopatías</span>
+          <span class="marca-lema" data-i18n="marca.lema">Investigación en sarcoglicanopatías</span>
         </span>
       </a>
-      <nav class="menu" aria-label="Principal">
-        <a href="#publicaciones">Publicaciones</a>
-        <a href="#como-funciona">Cómo funciona</a>
-        <a href="/api/docs">API</a>
-        <a class="boton boton-pequeno" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener">Colabora ↗</a>
+      <nav class="menu" aria-label="Principal" data-i18n-aria="menu.etiqueta">
+        <a href="#publicaciones" data-i18n="menu.publicaciones">Publicaciones</a>
+        <a href="#como-funciona" data-i18n="menu.como">Cómo funciona</a>
+        <a href="/api/docs" data-i18n="menu.api">API</a>
+        <a class="boton boton-pequeno" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener" data-i18n="menu.colabora">Colabora ↗</a>
+        <div class="idioma">
+          <button class="idioma-boton" id="idioma-boton" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="idioma-lista" aria-label="Cambiar idioma">
+            <img src="img/banderas/es.svg" alt="" width="34" height="34">
+          </button>
+          <ul class="idioma-lista oculto" id="idioma-lista" role="menu"></ul>
+        </div>
       </nav>
     </div>
   </header>
@@ -35,36 +41,36 @@
   <main>
     <section class="portada" aria-labelledby="titular">
       <div class="contenedor">
-        <p class="antetitulo">Distrofia muscular de cinturas · LGMD R3–R6</p>
-        <h1 id="titular">Toda la investigación sobre sarcoglicanopatías, <em>en un solo lugar.</em></h1>
-        <p class="entradilla">Cada día recopilamos las nuevas publicaciones científicas de PubMed para que pacientes, familias e investigadores las encuentren de forma sencilla.</p>
+        <p class="antetitulo" data-i18n="portada.antetitulo">Distrofia muscular de cinturas · LGMD R3–R6</p>
+        <h1 id="titular" data-i18n-html="portada.titular">Toda la investigación sobre sarcoglicanopatías, <em>en un solo lugar.</em></h1>
+        <p class="entradilla" data-i18n="portada.entradilla">Cada día recopilamos las nuevas publicaciones científicas de PubMed para que pacientes, familias e investigadores las encuentren de forma sencilla.</p>
 
-        <form class="buscador" id="formulario" role="search" aria-label="Buscar publicaciones">
+        <form class="buscador" id="formulario" role="search" aria-label="Buscar publicaciones" data-i18n-aria="buscador.etiqueta">
           <div class="buscador-fila">
             <div class="campo-busqueda">
-              <label class="solo-lectores" for="q">Buscar en títulos y resúmenes</label>
+              <label class="solo-lectores" for="q" data-i18n="buscador.q">Buscar en títulos y resúmenes</label>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-              <input id="q" name="q" type="search" placeholder="Busca por tema: sarcoglycan, gene therapy, variant…" autocomplete="off">
+              <input id="q" name="q" type="search" data-i18n-ph="buscador.q.ph" placeholder="Busca por tema: sarcoglycan, gene therapy, variant…" autocomplete="off">
             </div>
-            <button class="boton" type="submit">Buscar</button>
+            <button class="boton" type="submit" data-i18n="buscador.buscar">Buscar</button>
           </div>
           <div class="filtros">
             <div>
-              <label for="autor">Autor</label>
-              <input id="autor" name="autor" type="text" placeholder="Apellido del autor" autocomplete="off">
+              <label for="autor" data-i18n="buscador.autor">Autor</label>
+              <input id="autor" name="autor" type="text" data-i18n-ph="buscador.autor.ph" placeholder="Apellido del autor" autocomplete="off">
             </div>
             <div>
-              <label for="desde">Publicado desde</label>
+              <label for="desde" data-i18n="buscador.desde">Publicado desde</label>
               <input id="desde" name="desde" type="date">
             </div>
             <div>
-              <label for="hasta">Hasta</label>
+              <label for="hasta" data-i18n="buscador.hasta">Hasta</label>
               <input id="hasta" name="hasta" type="date">
             </div>
-            <button class="enlace-limpiar" type="button" id="limpiar">Limpiar</button>
+            <button class="enlace-limpiar" type="button" id="limpiar" data-i18n="buscador.limpiar">Limpiar</button>
           </div>
           <div class="sugerencias" id="sugerencias">
-            <span>Búsquedas frecuentes:</span>
+            <span data-i18n="buscador.frecuentes">Búsquedas frecuentes:</span>
             <button type="button" data-q="limb-girdle">limb-girdle</button>
             <button type="button" data-q="sarcoglycan">sarcoglycan</button>
             <button type="button" data-q="variant">variant</button>
@@ -76,15 +82,15 @@
         <div class="cifras">
           <div class="cifra">
             <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg></span>
-            <div><strong id="cifra-total">—</strong><span>publicaciones recopiladas</span></div>
+            <div><strong id="cifra-total">—</strong><span data-i18n="cifras.total">publicaciones recopiladas</span></div>
           </div>
           <div class="cifra">
             <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg></span>
-            <div><strong id="cifra-actualizacion">Cada día</strong><span id="cifra-actualizacion-texto">actualización automática</span></div>
+            <div><strong id="cifra-actualizacion" data-i18n="cifras.cadaDia">Cada día</strong><span id="cifra-actualizacion-texto" data-i18n="cifras.auto">actualización automática</span></div>
           </div>
           <div class="cifra">
             <span class="cifra-icono" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="M3 12h18M12 3c2.5 2.7 3.5 5.7 3.5 9s-1 6.3-3.5 9c-2.5-2.7-3.5-5.7-3.5-9s1-6.3 3.5-9z"/></svg></span>
-            <div><strong>PubMed</strong><span>fuente: NCBI · National Library of Medicine</span></div>
+            <div><strong>PubMed</strong><span data-i18n="cifras.fuente">fuente: NCBI · National Library of Medicine</span></div>
           </div>
         </div>
       </div>
@@ -93,32 +99,32 @@
     <section class="seccion" id="publicaciones" aria-labelledby="titulo-publicaciones">
       <div class="contenedor">
         <div class="seccion-cabecera">
-          <h2 id="titulo-publicaciones">Publicaciones</h2>
+          <h2 id="titulo-publicaciones" data-i18n="pub.titulo">Publicaciones</h2>
           <p class="resumen" id="resumen" aria-live="polite"></p>
         </div>
         <ol class="resultados" id="resultados"></ol>
-        <nav class="paginacion oculto" id="paginacion" aria-label="Páginas de resultados"></nav>
+        <nav class="paginacion oculto" id="paginacion" aria-label="Páginas de resultados" data-i18n-aria="pub.paginas"></nav>
       </div>
     </section>
 
     <section class="seccion fondo-gris" id="como-funciona" aria-labelledby="titulo-como">
       <div class="contenedor">
-        <div class="seccion-cabecera"><h2 id="titulo-como">Cómo funciona</h2></div>
+        <div class="seccion-cabecera"><h2 id="titulo-como" data-i18n="como.titulo">Cómo funciona</h2></div>
         <div class="pasos">
           <article class="paso">
             <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
-            <h3>Búsqueda diaria</h3>
-            <p>Cada mañana el sistema consulta PubMed y recoge los artículos más recientes sobre distrofias de cinturas por déficit de sarcoglicanos.</p>
+            <h3 data-i18n="como.1.t">Búsqueda diaria</h3>
+            <p data-i18n="como.1.p">Cada mañana el sistema consulta PubMed y recoge los artículos más recientes sobre distrofias de cinturas por déficit de sarcoglicanos.</p>
           </article>
           <article class="paso">
             <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span>
-            <h3>Base de datos propia</h3>
-            <p>Los artículos se guardan en nuestro servidor PostgreSQL, sin duplicados y con copia de seguridad diaria.</p>
+            <h3 data-i18n="como.2.t">Base de datos propia</h3>
+            <p data-i18n="como.2.p">Los artículos se guardan en nuestro servidor PostgreSQL, sin duplicados y con copia de seguridad diaria.</p>
           </article>
           <article class="paso">
             <span class="paso-icono" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
-            <h3>Consulta abierta</h3>
-            <p>Cualquiera puede buscar por tema, autor o fecha y acceder al artículo original en PubMed o a través de su DOI.</p>
+            <h3 data-i18n="como.3.t">Consulta abierta</h3>
+            <p data-i18n="como.3.p">Cualquiera puede buscar por tema, autor o fecha y acceder al artículo original en PubMed o a través de su DOI.</p>
           </article>
         </div>
       </div>
@@ -127,10 +133,10 @@
     <section class="colabora" aria-labelledby="titulo-colabora">
       <div class="contenedor">
         <div>
-          <h2 id="titulo-colabora">Caminamos con la esperanza de encontrar una cura.</h2>
-          <p>La asociación Proyecto Alpha apoya a las personas afectadas y a sus familias e impulsa la investigación de estas enfermedades.</p>
+          <h2 id="titulo-colabora" data-i18n="colabora.titulo">Caminamos con la esperanza de encontrar una cura.</h2>
+          <p data-i18n="colabora.texto">La asociación Proyecto Alpha apoya a las personas afectadas y a sus familias e impulsa la investigación de estas enfermedades.</p>
         </div>
-        <a class="boton" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener">Colabora con Proyecto Alpha ↗</a>
+        <a class="boton" href="https://www.proyectoalpha.org/colabora/" target="_blank" rel="noopener" data-i18n="colabora.boton">Colabora con Proyecto Alpha ↗</a>
       </div>
     </section>
   </main>
@@ -140,39 +146,40 @@
       <div class="pie-columnas">
         <div>
           <span class="marca-nombre">Alpha Research</span>
-          <p>Buscador de publicaciones científicas sobre sarcoglicanopatías. Proyecto del ciclo de Administración de Sistemas Informáticos en Red (ASIX).</p>
-          <p>La información de esta web no sustituye la opinión de un profesional sanitario.</p>
+          <p data-i18n="pie.texto">Buscador de publicaciones científicas sobre sarcoglicanopatías. Proyecto del ciclo de Administración de Sistemas Informáticos en Red (ASIX).</p>
+          <p data-i18n="pie.aviso">La información de esta web no sustituye la opinión de un profesional sanitario.</p>
         </div>
         <div>
-          <h4>Explorar</h4>
+          <h4 data-i18n="pie.explorar">Explorar</h4>
           <ul>
-            <li><a href="#publicaciones">Publicaciones</a></li>
-            <li><a href="#como-funciona">Cómo funciona</a></li>
-            <li><a href="/api/docs">Documentación de la API</a></li>
+            <li><a href="#publicaciones" data-i18n="menu.publicaciones">Publicaciones</a></li>
+            <li><a href="#como-funciona" data-i18n="menu.como">Cómo funciona</a></li>
+            <li><a href="/api/docs" data-i18n="pie.docs">Documentación de la API</a></li>
           </ul>
         </div>
         <div>
-          <h4>Enlaces</h4>
+          <h4 data-i18n="pie.enlaces">Enlaces</h4>
           <ul>
-            <li><a href="https://www.proyectoalpha.org/" target="_blank" rel="noopener">Asociación Proyecto Alpha ↗</a></li>
+            <li><a href="https://www.proyectoalpha.org/" target="_blank" rel="noopener" data-i18n="pie.asociacion">Asociación Proyecto Alpha ↗</a></li>
             <li><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed ↗</a></li>
           </ul>
         </div>
       </div>
       <div class="pie-legal">
-        <span class="estado"><span class="punto" id="estado-punto"></span><span id="estado">Comprobando el servicio…</span></span>
+        <span class="estado"><span class="punto" id="estado-punto"></span><span id="estado" data-i18n="estado.comprobando">Comprobando el servicio…</span></span>
         <span id="ingesta"></span>
       </div>
     </div>
   </footer>
 
   <dialog class="ficha" id="ficha" aria-labelledby="ficha-titulo">
-    <button class="ficha-cerrar" type="button" id="cerrar-ficha" aria-label="Cerrar">✕</button>
+    <button class="ficha-cerrar" type="button" id="cerrar-ficha" aria-label="Cerrar" data-i18n-aria="ficha.cerrar">✕</button>
     <div class="ficha-contenido" id="ficha-contenido"></div>
   </dialog>
 
   <div class="aviso oculto" id="aviso" role="status"></div>
 
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
