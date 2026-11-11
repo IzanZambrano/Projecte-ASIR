@@ -143,7 +143,7 @@ async function buscar() {
   const estado = leerURL();
   for (const k of FILTROS) $(k).value = estado[k];
 
-  const params = new URLSearchParams({ pagina: estado.pagina, por_pagina: POR_PAGINA });
+  const params = new URLSearchParams({ pagina: estado.pagina, por_pagina: POR_PAGINA, lang: window.I18N.actual() });
   for (const k of FILTROS) if (estado[k]) params.set(k, estado[k]);
 
   const id = ++peticionActual;
@@ -177,7 +177,7 @@ function tarjeta(a) {
     ),
     el("div", { class: "articulo-cuerpo" },
       a.journal && el("p", { class: "revista", texto: a.journal }),
-      el("h3", {}, el("button", { type: "button", texto: a.title })),
+      el("h3", { lang: a.traducido ? window.I18N.actual() : "en" }, el("button", { type: "button", texto: a.title })),
       el("p", { class: "autores", texto: autoresCortos(a.authors) }),
       el("div", { class: "articulo-pie" },
         el("span", { class: "solo-lectores", texto: t("tarjeta.publicado", { fecha: fechaLarga(a.publication_date) }) }),
@@ -247,7 +247,7 @@ function irAPagina(n) {
 
 function cita(a) {
   const anio = a.publication_date ? a.publication_date.slice(0, 4) : t("cita.sf");
-  return [autoresCortos(a.authors, 6) + ".", a.title, a.journal ? `${a.journal}.` : "", `${anio}.`,
+  return [autoresCortos(a.authors, 6) + ".", a.title_original || a.title, a.journal ? `${a.journal}.` : "", `${anio}.`,
     a.doi ? `doi:${a.doi}.` : "", a.pmid ? `PMID: ${a.pmid}.` : ""].filter(Boolean).join(" ");
 }
 
@@ -274,7 +274,7 @@ async function abrirFicha(id, desdeURL = false) {
   if (!$("ficha").open) $("ficha").showModal();
 
   try {
-    const a = await pedir(`/papers/${encodeURIComponent(id)}`);
+    const a = await pedir(`/papers/${encodeURIComponent(id)}?lang=${window.I18N.actual()}`);
     const datos = [
       [t("ficha.autores"), a.authors || t("ficha.autores.no")],
       [t("ficha.revista"), a.journal],
@@ -290,10 +290,11 @@ async function abrirFicha(id, desdeURL = false) {
     const urlPubmed = a.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(a.pmid)}/` : a.url;
     poner(contenido, 
       a.journal && el("p", { class: "revista", texto: a.journal }),
-      el("h2", { id: "ficha-titulo", texto: a.title }),
+      a.traducido && avisoTraduccion(a),
+      el("h2", { id: "ficha-titulo", texto: a.title, lang: a.traducido ? window.I18N.actual() : "en" }),
       el("dl", {}, datos.map(([k, v]) => [el("dt", { texto: k }), el("dd", { texto: v })])),
       a.summary && [el("h3", { texto: t("ficha.resumen") }), el("p", { class: "texto", texto: a.summary })],
-      a.abstract && [el("h3", { texto: "Abstract" }), el("p", { class: "texto", texto: a.abstract })],
+      a.abstract && [el("h3", { texto: t("ficha.abstract") }), el("p", { class: "texto", id: "ficha-abstract", texto: a.abstract, lang: a.traducido ? window.I18N.actual() : "en" })],
       !tieneTexto && el("p", { class: "nota", texto: t("ficha.sinResumen") }),
       a.keywords?.length > 0 && [el("h3", { texto: t("ficha.claves") }), el("ul", { class: "palabras" }, a.keywords.map((k) => el("li", { texto: k })))],
       el("div", { class: "ficha-acciones" },
@@ -308,6 +309,27 @@ async function abrirFicha(id, desdeURL = false) {
       e.status === 404 ? t("ficha.noEncontrada.p") : t("ficha.error.p"),
     ));
   }
+}
+
+// Aviso "traducción automática" con un botón para alternar entre la
+// traducción y el original en inglés (título y resumen)
+function avisoTraduccion(a) {
+  let original = false;
+  const boton = el("button", { class: "enlace-boton", type: "button", texto: t("trad.verOriginal") });
+  boton.addEventListener("click", () => {
+    original = !original;
+    const titulo = $("ficha-titulo");
+    const resumen = $("ficha-abstract");
+    titulo.textContent = original ? a.title_original : a.title;
+    titulo.lang = original ? "en" : window.I18N.actual();
+    if (resumen) {
+      resumen.textContent = original ? a.abstract_original : a.abstract;
+      resumen.lang = titulo.lang;
+    }
+    boton.textContent = original ? t("trad.verTraduccion") : t("trad.verOriginal");
+  });
+  return el("p", { class: "aviso-traduccion" },
+    el("span", { texto: t("trad.aviso") }), boton);
 }
 
 // Los enlaces externos de la ficha se abren a mano en una pestaña nueva: así

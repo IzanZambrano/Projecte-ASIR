@@ -47,3 +47,32 @@ nc -zv 192.168.116.31 5432
 ```
 
 Desde el navegador: `https://192.168.248.33` y `https://192.168.248.33/api/docs`.
+
+## 5. Traductor (publicaciones en español y catalán)
+
+PubMed solo da los artículos en inglés. El servicio `traductor`
+(LibreTranslate, en el mismo `compose.yaml`) traduce el título y el resumen
+al español y al catalán; la API lo usa al final de cada búsqueda diaria y
+guarda el resultado en la tabla `paper_traducciones`. La web muestra cada
+artículo en el idioma elegido, con el aviso "traducción automática" y un
+botón para ver el original.
+
+- En el `.env`: `TRADUCTOR_URL=http://traductor:5000` (vacío = no traducir).
+- La primera vez descarga los modelos de idioma (unos minutos). Necesita
+  unos 2 GB de RAM libres.
+- Para traducir ya lo que hay en la base de datos sin esperar a las 06:00:
+
+```bash
+docker exec alpha-api python -m app.ingesta.guardar 50    # descarga resúmenes y traduce
+docker exec alpha-api python -m app.ingesta.traducir      # solo traducir lo pendiente
+```
+
+En una base de datos creada antes de este cambio hay que aplicar antes la
+migración en srv-db:
+
+```bash
+cd ~/Projecte-ASIR/infra/srv-db
+docker compose exec -T alpha-db psql -U alpha_admin -d alpha_db \
+    < ../../database/migraciones/002-traducciones.sql
+```
+

@@ -5,6 +5,7 @@ Sin API key, NCBI permite 3 peticiones por segundo; con NCBI_API_KEY, 10.
 """
 
 import os
+from xml.etree import ElementTree
 
 import httpx
 
@@ -66,6 +67,43 @@ def obtener_resumenes(pmids: list[str]) -> list[dict]:
             }
         )
     return articulos
+
+
+def _texto(nodo) -> str:
+    """Texto de un nodo XML incluyendo etiquetas internas (<i>, <sup>...)."""
+    return " ".join("".join(nodo.itertext()).split())
+
+
+def obtener_abstracts(pmids: list[str], tanda: int = 200) -> dict[str, str]:
+    """Descarga el resumen (abstract) de cada artículo con efetch (XML).
+
+    Devuelve {pmid: abstract}. Si PubMed no tiene resumen para un artículo,
+    su valor es "" (así se distingue de "todavía no consultado", que es NULL).
+    Los resúmenes estructurados (BACKGROUND, METHODS...) se unen en párrafos.
+    """
+    resumenes: dict[str, str] = {}
+    for i in range(0, len(pmids), tanda):
+        grupo = pmids[i : i + tanda]
+        r = httpx.post(
+            f"{EUTILS}/efetch.fcgi",
+            data={**_params(id=",".join(grupo)), "retmode": "xml", "rettype": "abstract"},
+            timeout=60,
+        )
+        r.raise_for_status()
+        raiz = ElementTree.fromstring(r.content)
+        for articulo in raiz.iter("PubmedArticle"):
+            pmid = articulo.findtext("MedlineCitation/PMID")
+            if not pmid:
+                continue
+            parrafos = []
+            for parte in articulo.findall("MedlineCitation/Article/Abstract/AbstractText"):
+                texto = _texto(parte)
+                if not texto:
+                    continue
+                etiqueta = parte.get("Label")
+                parrafos.append(f"{etiqueta.capitalize()}: {texto}" if etiqueta else texto)
+            resumenes[pmid] = "\n\n".join(parrafos)
+    return resumenes
 
 
 if __name__ == "__main__":

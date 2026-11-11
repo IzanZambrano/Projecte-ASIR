@@ -33,6 +33,23 @@ services:
       timeout: 5s
       retries: 3
 
+  # Traductor propio (LibreTranslate): traduce título y resumen al español y al
+  # catalán. Solo lo usa la API; no se publica hacia fuera.
+  # La primera vez descarga los modelos de idioma (unos minutos); se guardan en
+  # el volumen lt_modelos. Necesita ~2 GB de RAM.
+  traductor:
+    image: libretranslate/libretranslate:v1.6.5
+    container_name: alpha-traductor
+    restart: unless-stopped
+    environment:
+      LT_LOAD_ONLY: en,es,ca
+      LT_DISABLE_WEB_UI: "true"
+      LT_THREADS: "2"
+    expose:
+      - "5000"
+    volumes:
+      - lt_modelos:/home/libretranslate/.local
+
   node-exporter:
     image: prom/node-exporter:v1.8.2
     container_name: node-exporter
@@ -42,3 +59,6 @@ services:
     command: --path.rootfs=/host
     volumes:
       - /:/host:ro,rslave
+
+volumes:
+  lt_modelos:
