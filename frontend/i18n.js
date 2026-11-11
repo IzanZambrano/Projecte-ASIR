@@ -325,6 +325,9 @@ const TEXTOS = {
 // ---------------------------------------------------------------------------
 
 function idiomaInicial() {
+  // 1) ?lang=ca en la dirección (enlaces compartidos), 2) el elegido antes, 3) el del navegador
+  const deURL = new URLSearchParams(location.search).get("lang");
+  if (deURL && IDIOMAS[deURL]) return deURL;
   try {
     const guardado = localStorage.getItem("idioma");
     if (guardado && IDIOMAS[guardado]) return guardado;
@@ -358,10 +361,19 @@ function traducirPagina() {
   document.querySelectorAll("[data-i18n-aria]").forEach((n) => { n.setAttribute("aria-label", t(n.dataset.i18nAria)); });
 }
 
+// La dirección lleva ?lang=en|ca para que un enlace compartido abra en ese idioma
+function ponerIdiomaEnURL() {
+  const p = new URLSearchParams(location.search);
+  if (idiomaActual === "es") p.delete("lang"); else p.set("lang", idiomaActual);
+  const url = location.pathname + (p.toString() ? `?${p}` : "") + location.hash;
+  history.replaceState(history.state, "", url);
+}
+
 function cambiarIdioma(codigo) {
   if (!IDIOMAS[codigo]) return;
   idiomaActual = codigo;
   try { localStorage.setItem("idioma", codigo); } catch { /* sin localStorage */ }
+  ponerIdiomaEnURL();
   traducirPagina();
   pintarSelector();
   alCambiarIdioma.forEach((fn) => fn(codigo));
@@ -377,6 +389,7 @@ function pintarSelector() {
   if (!boton || !lista) return;
 
   boton.querySelector("img").src = IDIOMAS[idiomaActual].bandera;
+  boton.querySelector(".idioma-codigo").textContent = idiomaActual.toUpperCase();
   boton.setAttribute("aria-label", `${t("idioma.boton")} (${IDIOMAS[idiomaActual].nombre})`);
 
   lista.replaceChildren(...Object.entries(IDIOMAS).map(([codigo, idioma]) => {
@@ -387,10 +400,14 @@ function pintarSelector() {
     b.setAttribute("aria-checked", codigo === idiomaActual ? "true" : "false");
     b.lang = codigo;
     const img = document.createElement("img");
-    img.src = idioma.bandera; img.alt = ""; img.width = 22; img.height = 22;
-    const span = document.createElement("span");
-    span.textContent = idioma.nombre;
-    b.append(img, span);
+    img.src = idioma.bandera; img.alt = ""; img.width = 20; img.height = 20;
+    const nombre = document.createElement("span");
+    nombre.className = "idioma-nombre";
+    nombre.textContent = idioma.nombre;
+    const cod = document.createElement("span");
+    cod.className = "idioma-cod";
+    cod.textContent = codigo.toUpperCase();
+    b.append(img, nombre, cod);
     b.addEventListener("click", () => { cerrarSelector(); cambiarIdioma(codigo); boton.focus(); });
     li.append(b);
     return li;
@@ -423,6 +440,7 @@ function iniciarSelector() {
   pintarSelector();
 }
 
+if (new URLSearchParams(location.search).has("lang") || idiomaActual !== "es") ponerIdiomaEnURL();
 traducirPagina();
 iniciarSelector();
 

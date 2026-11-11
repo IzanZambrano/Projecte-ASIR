@@ -114,6 +114,7 @@ function escribirURL(estado, reemplazar = false) {
   for (const k of FILTROS) if (estado[k]) p.set(k, estado[k]);
   if (estado.pagina > 1) p.set("pagina", estado.pagina);
   if (estado.id) p.set("id", estado.id);
+  if (window.I18N.actual() !== "es") p.set("lang", window.I18N.actual());
   const url = location.pathname + (p.toString() ? `?${p}` : "") + location.hash;
   if (url !== location.pathname + location.search + location.hash) {
     history[reemplazar ? "replaceState" : "pushState"](null, "", url);
