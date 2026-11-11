@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS sources (
 
 CREATE TABLE IF NOT EXISTS papers (
     id SERIAL PRIMARY KEY,
+    pmid VARCHAR(20) UNIQUE,
     title TEXT NOT NULL,
     abstract TEXT,
     authors TEXT,

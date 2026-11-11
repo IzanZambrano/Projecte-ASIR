@@ -6,7 +6,7 @@ global:
 scrape_configs:
   - job_name: node
     static_configs:
-      - targets: ["192.168.116.30:9100"]
+      - targets: ["192.168.248.33:9100"]
         labels: { servidor: srv-web }
       - targets: ["192.168.116.31:9100"]
         labels: { servidor: srv-db }
