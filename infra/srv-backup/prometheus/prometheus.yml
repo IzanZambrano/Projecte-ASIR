@@ -8,7 +8,7 @@ scrape_configs:
     static_configs:
       - targets: ["192.168.248.33:9100"]
         labels: { servidor: srv-web }
-      - targets: ["192.168.116.31:9100"]
+      - targets: ["192.168.248.9:9100"]
         labels: { servidor: srv-db }
       - targets: ["192.168.116.32:9100"]
         labels: { servidor: srv-backup }

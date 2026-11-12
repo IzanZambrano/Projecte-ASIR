@@ -43,7 +43,7 @@ curl -I http://localhost                    # 301 -> https
 Desde srv-web, comprobar que llega a la base de datos:
 
 ```bash
-nc -zv 192.168.116.31 5432
+nc -zv 192.168.248.9 5432
 ```
 
 Desde el navegador: `https://192.168.248.33` y `https://192.168.248.33/api/docs`.

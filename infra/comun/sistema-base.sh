@@ -11,9 +11,9 @@ set -euo pipefail
 
 # --- Red del proyecto (debe coincidir con docs/03-red.md) ---------------------
 SRV_WEB=192.168.248.33
-SRV_DB=192.168.116.31
+SRV_DB=192.168.248.9
 SRV_BACKUP=192.168.116.32
-RED_ADMIN=192.168.116.0/24     # Desde donde se administra por SSH
+RED_ADMIN=192.168.0.0/16      # Desde donde se administra por SSH
 USUARIO_ADMIN=${SUDO_USER:-admin}
 # -----------------------------------------------------------------------------
 

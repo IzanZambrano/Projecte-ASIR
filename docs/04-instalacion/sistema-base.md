@@ -7,14 +7,14 @@ se administran desde un PC con Manjaro. Datos de red en [03-red.md](../03-red.md
 | Máquina | Hostname | IP |
 |---------|----------|----|
 | Servidor 1 | `srv-web` | 192.168.248.33/16 |
-| Servidor 2 | `srv-db` | 192.168.116.31/16 |
+| Servidor 2 | `srv-db` | 192.168.248.9/16 |
 | Servidor 3 | `srv-backup` | 192.168.116.32/16 |
 
 ## 0. Preparar el PC de administración (Manjaro)
 
 ```bash
 sudo pacman -S --needed openssh git nmap openbsd-netcat
-ping -c2 192.168.248.33      # 192.168.248.33, 192.168.116.31 y .32 NO deben responder (libres)
+ping -c2 192.168.248.33      # 192.168.248.33, 192.168.248.9 y .32 NO deben responder (libres)
 ssh-keygen -t ed25519        # solo si no hay clave
 ```
 
@@ -36,7 +36,7 @@ Arrancar desde el USB y, en el instalador:
    | Campo | Valor |
    |-------|-------|
    | Subnet | `192.168.0.0/16` |
-   | Address | `192.168.248.33` (srv-web) / `192.168.116.31` (srv-db) / `192.168.116.32` (srv-backup) |
+   | Address | `192.168.248.33` (srv-web) / `192.168.248.9` (srv-db) / `192.168.116.32` (srv-backup) |
    | Gateway | `192.168.88.88` |
    | Name servers | `192.168.88.88` |
    | Search domains | `iesthosicodina.cat` |
