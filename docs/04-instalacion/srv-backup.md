@@ -40,7 +40,7 @@ chmod 600 .env
   |---------|------|---------|
   | Web | HTTP(s) (ignorar TLS) | `https://192.168.248.33` |
   | API | HTTP(s) – palabra clave `ok` | `https://192.168.248.33/api/health` |
-  | Base de datos | Puerto TCP | `192.168.116.31:5432` |
+  | Base de datos | Puerto TCP | `192.168.248.9:5432` |
 
   > Para el monitor de la base de datos hay que permitir srv-backup en ufw
   > de srv-db: `sudo ufw allow from 192.168.116.32 to any port 5432 proto tcp`

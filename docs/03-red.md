@@ -11,7 +11,7 @@
 | Máquina | IP | SO | CPU / RAM / Disco (mínimo) |
 |---------|----|----|----------------------------|
 | srv-web | 192.168.248.33/16 | Ubuntu Server LTS | 1 / 2 GB / 20 GB |
-| srv-db | 192.168.116.31/16 | Ubuntu Server LTS | 2 / 2 GB / 20 GB |
+| srv-db | 192.168.248.9/16 | Ubuntu Server LTS | 2 / 2 GB / 20 GB |
 | srv-backup | 192.168.116.32/16 | Ubuntu Server LTS | 1 / 2 GB / 40 GB |
 | PC de administración | 192.168.116.16 (DHCP) | Manjaro | — |
 
@@ -21,13 +21,13 @@
 | Puerta de enlace | `192.168.88.88` |
 | DNS | `192.168.88.88` (los DNS externos como 1.1.1.1 están bloqueados) |
 | Dominio de búsqueda | `iesthosicodina.cat` |
-| Red de administración (SSH) | `192.168.116.0/24` |
+| Red de administración (SSH) | `192.168.0.0/16` |
 
 > **Atención:** el DHCP del instituto también reparte IPs `192.168.116.x`.
 > Antes de fijar las IPs, comprobar con `ping` que están libres y, si es
 > posible, pedir que se reserven para las MAC de los servidores.
 >
-> Si la IP del PC de administración deja de estar en `192.168.116.0/24`,
+> Si la IP del PC de administración deja de estar en `192.168.0.0/16`,
 > ufw bloqueará su SSH. Solución desde la consola del servidor:
 > `sudo ufw allow from <IP> to any port 22 proto tcp`.
 
