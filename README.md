@@ -12,7 +12,7 @@ Alpha Research tiene como objetivo centralizar publicaciones y estudios científ
 
 El repositorio recoge el desarrollo de la aplicación, la configuración de la infraestructura, la documentación técnica y el seguimiento del proyecto.
 
-> **Estado:** proyecto en fase inicial. La estructura y la infraestructura de las tres máquinas están definidas; la lógica de la API y la web están pendientes. Consulta el [Roadmap](#roadmap).
+> **Estado:** la infraestructura (dos servidores) y la aplicación (API, ingesta diaria de PubMed con traducción y web de consulta) están en marcha. Consulta el [Roadmap](#roadmap).
 
 ---
 
@@ -54,12 +54,11 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 
 ## Arquitectura
 
-La plataforma se despliega en **tres servidores**, cada uno con su propio Docker Compose:
+La plataforma se despliega en **dos servidores**, cada uno con su propio Docker Compose:
 
 | Máquina | Servicios |
 |---------|-----------|
-| **srv-web** | Nginx (HTTPS, web estática) y la API FastAPI |
-| **srv-db** | PostgreSQL |
+| **srv-app** | Nginx (HTTPS, web estática), la API FastAPI, el traductor LibreTranslate y PostgreSQL |
 | **srv-backup** | Copias de seguridad, Uptime Kuma, Prometheus y Grafana |
 
 Detalles en [docs/02-arquitectura.md](docs/02-arquitectura.md) y [docs/03-red.md](docs/03-red.md).
@@ -80,16 +79,15 @@ Projecte-ASIR/
 │   ├── init/                 # Usuarios y permisos al arrancar
 │   └── seed.sql              # Datos de prueba
 ├── infra/                    # Una carpeta por máquina
-│   ├── comun/sistema-base.sh # SSH, ufw, fail2ban, Docker (igual en las 3)
-│   ├── srv-web/              # compose.yaml, .env.example, nginx/
-│   ├── srv-db/               # compose.yaml, .env.example, postgresql/
+│   ├── comun/sistema-base.sh # SSH, ufw, fail2ban, Docker (igual en las 2)
+│   ├── srv-app/              # compose.yaml, .env.example, nginx/, postgresql/
 │   └── srv-backup/           # compose.yaml, .env.example, prometheus/, grafana/
 ├── scripts/                  # deploy.sh, backup.sh, restore.sh
 ├── docs/                     # Documentación del proyecto
 └── .github/workflows/ci.yml  # Comprueba que todo se construye
 ```
 
-El mismo repositorio se clona en las tres máquinas y cada una arranca solo su
+El mismo repositorio se clona en las dos máquinas y cada una arranca solo su
 carpeta de `infra/`. Cada máquina tiene su `.env.example`; el `.env` real con
 las contraseñas solo existe en el servidor y **nunca se sube**.
 
@@ -100,19 +98,18 @@ las contraseñas solo existe en el servidor y **nunca se sube**.
 Las guías de [docs/04-instalacion/](docs/04-instalacion/) permiten montar cada
 máquina desde cero. Orden recomendado:
 
-1. [Sistema base](docs/04-instalacion/sistema-base.md) — en las tres máquinas.
-2. [srv-db](docs/04-instalacion/srv-db.md)
-3. [srv-web](docs/04-instalacion/srv-web.md)
-4. [srv-backup](docs/04-instalacion/srv-backup.md)
+1. [Sistema base](docs/04-instalacion/sistema-base.md) — en las dos máquinas.
+2. [srv-app](docs/04-instalacion/srv-app.md)
+3. [srv-backup](docs/04-instalacion/srv-backup.md)
 
 Resumen, en cada máquina:
 
 ```bash
 git clone https://github.com/IzanZambrano/Projecte-ASIR.git
 cd Projecte-ASIR
-sudo ./infra/comun/sistema-base.sh srv-web     # o srv-db / srv-backup
-cp infra/srv-web/.env.example infra/srv-web/.env && nano infra/srv-web/.env
-./scripts/deploy.sh srv-web
+sudo ./infra/comun/sistema-base.sh srv-app     # o srv-backup
+cp infra/srv-app/.env.example infra/srv-app/.env && nano infra/srv-app/.env
+./scripts/deploy.sh srv-app
 ```
 
 ---
@@ -122,7 +119,7 @@ cp infra/srv-web/.env.example infra/srv-web/.env && nano infra/srv-web/.env
 | Documento | Contenido |
 |-----------|-----------|
 | [01 Introducción](docs/01-introduccion.md) | Objetivos y alcance |
-| [02 Arquitectura](docs/02-arquitectura.md) | Diagrama y por qué tres máquinas |
+| [02 Arquitectura](docs/02-arquitectura.md) | Diagrama y por qué dos máquinas |
 | [03 Red](docs/03-red.md) | IPs, puertos y tabla de comunicaciones |
 | [04 Instalación](docs/04-instalacion/) | Montaje de cada máquina paso a paso |
 | [05 Seguridad](docs/05-seguridad.md) | Medidas aplicadas en cada máquina |
@@ -137,7 +134,7 @@ cp infra/srv-web/.env.example infra/srv-web/.env && nano infra/srv-web/.env
 
 Cada fase es un *milestone* en GitHub y cada tarea una *issue* del tablero del proyecto.
 
-1. **Infraestructura** — tres máquinas con sistema base, Docker y red. *(en curso)*
+1. **Infraestructura** — dos máquinas con sistema base, Docker y red. *(en curso)*
 2. **Aplicación** — API, ingesta desde PubMed y web de consulta.
 3. **Seguridad** — HTTPS, cortafuegos, permisos de base de datos, pruebas.
 4. **Documentación** — guías de instalación, copias, monitorización y memoria.

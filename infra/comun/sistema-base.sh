@@ -1,8 +1,8 @@
 #!/bin/bash
 # Prepara una máquina Ubuntu Server (o Debian) recién instalada: paquetes, SSH, ufw,
-# fail2ban y Docker. Es igual en las tres máquinas salvo las reglas de ufw.
+# fail2ban y Docker. Es igual en las dos máquinas salvo las reglas de ufw.
 #
-# Uso (como root):   ./sistema-base.sh srv-web|srv-db|srv-backup
+# Uso (como root):   ./sistema-base.sh srv-app|srv-backup
 #
 # Antes de ejecutarlo, copia tu clave pública al servidor (ssh-copy-id):
 # este script DESACTIVA el acceso SSH con contraseña.
@@ -10,17 +10,16 @@
 set -euo pipefail
 
 # --- Red del proyecto (debe coincidir con docs/03-red.md) ---------------------
-SRV_WEB=192.168.248.33
-SRV_DB=192.168.248.9
-SRV_BACKUP=192.168.116.32
+SRV_APP=192.168.248.33        # Web + API + traductor + PostgreSQL
+SRV_BACKUP=192.168.116.32     # Copias y monitorización (IP provisional hasta que se monte)
 RED_ADMIN=192.168.0.0/16      # Desde donde se administra por SSH
 USUARIO_ADMIN=${SUDO_USER:-admin}
 # -----------------------------------------------------------------------------
 
 ROL=${1:-}
 case "$ROL" in
-    srv-web|srv-db|srv-backup) ;;
-    *) echo "Uso: $0 srv-web|srv-db|srv-backup" >&2; exit 1 ;;
+    srv-app|srv-backup) ;;
+    *) echo "Uso: $0 srv-app|srv-backup" >&2; exit 1 ;;
 esac
 [[ $EUID -eq 0 ]] || { echo "Ejecutar como root" >&2; exit 1; }
 # Evita quedarse fuera: el usuario admin debe existir y tener una clave SSH
@@ -77,15 +76,13 @@ ufw default allow outgoing
 ufw allow from "$RED_ADMIN" to any port 22 proto tcp comment 'SSH administracion'
 ufw allow from "$SRV_BACKUP" to any port 9100 proto tcp comment 'node-exporter'
 case "$ROL" in
-    srv-web)
+    srv-app)
         ufw allow 80/tcp  comment 'HTTP'
         ufw allow 443/tcp comment 'HTTPS'
-        ;;
-    srv-db)
-        ufw allow from "$SRV_WEB" to any port 5432 proto tcp comment 'PostgreSQL desde la API'
+        # PostgreSQL no necesita regla: no se publica fuera de Docker
         ;;
     srv-backup)
-        ufw allow from "$SRV_DB" to any port 22 proto tcp comment 'rsync de copias'
+        ufw allow from "$SRV_APP" to any port 22 proto tcp comment 'rsync de copias'
         # Prometheus (en un contenedor) leyendo el node-exporter de esta misma máquina
         ufw allow from 172.16.0.0/12 to any port 9100 proto tcp comment 'node-exporter local'
         ;;
@@ -93,7 +90,7 @@ esac
 ufw --force enable
 
 if [[ $ROL == srv-backup ]]; then
-    echo "==> Usuario 'copias' que recibe los volcados de srv-db por rsync"
+    echo "==> Usuario 'copias' que recibe los volcados de srv-app por rsync"
     id copias >/dev/null 2>&1 || useradd --create-home --shell /bin/bash copias
     install -d -o copias -g copias -m 700 /srv/backups/alpha /home/copias/.ssh
 fi

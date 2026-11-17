@@ -2,7 +2,7 @@
 -- Solo hace falta en bases de datos creadas antes de este cambio;
 -- las nuevas ya lo traen desde schema.sql. Se puede ejecutar varias veces.
 --
--- Uso (en srv-db):
+-- Uso (en srv-app, desde infra/srv-app):
 --   docker compose exec -T alpha-db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
 --       < ../../database/migraciones/001-pmid.sql
 

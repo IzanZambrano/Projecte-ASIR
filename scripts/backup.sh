@@ -1,12 +1,12 @@
 #!/bin/bash
-# Copia de seguridad de PostgreSQL. Se ejecuta en srv-db (cron diario, ver
+# Copia de seguridad de PostgreSQL. Se ejecuta en srv-app (cron diario, ver
 # docs/06-copias.md): vuelca la base de datos, borra las copias antiguas y
 # envía el resultado a srv-backup.
 
 set -euo pipefail
 
 RAIZ=$(cd "$(dirname "$0")/.." && pwd)
-DIR_COMPOSE="$RAIZ/infra/srv-db"
+DIR_COMPOSE="$RAIZ/infra/srv-app"
 # shellcheck disable=SC1091
 source "$DIR_COMPOSE/.env"
 

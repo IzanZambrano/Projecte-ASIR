@@ -1,5 +1,5 @@
 -- Datos de prueba. NO se cargan automáticamente.
--- Uso (en srv-db):
+-- Uso (en srv-app, desde infra/srv-app):
 --   docker compose exec -T alpha-db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < ../../database/seed.sql
 
 INSERT INTO sources (name, url) VALUES

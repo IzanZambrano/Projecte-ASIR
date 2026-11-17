@@ -29,5 +29,5 @@ revistas y es difícil seguirla al día.
 
 | Persona | Responsabilidades |
 |---------|-------------------|
-| _Nombre_ | _p. ej. srv-web, Nginx, frontend_ |
-| _Nombre_ | _p. ej. srv-db, PostgreSQL, copias_ |
+| _Nombre_ | _p. ej. srv-app, Nginx, API, frontend_ |
+| _Nombre_ | _p. ej. srv-backup, copias, monitorización_ |
