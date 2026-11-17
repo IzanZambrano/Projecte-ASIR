@@ -21,6 +21,9 @@ services:
     container_name: alpha-api
     restart: unless-stopped
     env_file: .env
+    environment:
+      # Nginx la publica en /api/ (para que /api/docs funcione)
+      API_ROOT_PATH: /api
     # Sin "ports": solo es accesible a través de Nginx
     expose:
       - "8000"

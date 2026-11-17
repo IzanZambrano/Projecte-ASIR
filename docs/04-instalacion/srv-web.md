@@ -46,4 +46,4 @@ Desde srv-web, comprobar que llega a la base de datos:
 nc -zv 192.168.116.31 5432
 ```
 
-Desde el navegador: `https://192.168.116.30` y `https://192.168.116.30/api/docs`.
+Desde el navegador: `https://192.168.248.33` y `https://192.168.248.33/api/docs`.
