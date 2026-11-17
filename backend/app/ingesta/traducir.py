@@ -1,7 +1,7 @@
 """Traduce el título y el resumen de las publicaciones con LibreTranslate.
 
 LibreTranslate es un traductor de código abierto que corre en nuestro propio
-servidor (servicio "traductor" de infra/srv-web/compose.yaml): los textos no
+servidor (servicio "traductor" de infra/srv-app/compose.yaml): los textos no
 salen a ningún servicio externo. Cada artículo se traduce una sola vez y el
 resultado se guarda en la tabla paper_traducciones; si el título o el resumen
 originales cambian, un trigger de la base de datos borra la traducción vieja

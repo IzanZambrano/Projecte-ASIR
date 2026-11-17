@@ -1,7 +1,7 @@
 #!/bin/bash
 # Actualiza el código y levanta los servicios de ESTA máquina.
 # Uso:  ./scripts/deploy.sh            (usa el nombre de la máquina)
-#       ./scripts/deploy.sh srv-web    (lo indica explícitamente)
+#       ./scripts/deploy.sh srv-app    (lo indica explícitamente)
 
 set -euo pipefail
 

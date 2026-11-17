@@ -1,7 +1,7 @@
 #!/bin/bash
 # Se ejecuta UNA sola vez, cuando el volumen de datos está vacío.
 # Crea el usuario de la aplicación (sin privilegios de administración).
-# Las contraseñas llegan desde infra/srv-db/.env.
+# Las contraseñas llegan desde infra/srv-app/.env.
 set -euo pipefail
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \

@@ -39,6 +39,19 @@ Una entrada por sesión de trabajo. Lo más valioso para el tribunal son los
   (no se usa OVS).
 - **Issue:** #
 
+### 2026-11-17 — Web y base de datos unificadas en srv-app
+
+- **Hecho:** srv-web y srv-db pasan a ser una sola máquina, **srv-app**
+  (192.168.248.33), con Nginx, API, traductor y PostgreSQL en un único
+  `compose.yaml`. srv-backup queda en otra máquina (Ubuntu Server 26.04).
+- **Motivo:** menos equipos físicos que mantener y PostgreSQL deja de estar
+  expuesto en la red (solo existe en la red interna de Docker).
+- **Problema encontrado antes:** la base de datos de srv-db se había creado con
+  el esquema antiguo y la ingesta fallaba (`column "pmid" does not exist`).
+  Se resolvió con las migraciones 001 y 002; en srv-app la base de datos nueva
+  ya se crea con el esquema completo.
+- **Issue:** #
+
 ### AAAA-MM-DD — _Título_
 
 - **Hecho:**

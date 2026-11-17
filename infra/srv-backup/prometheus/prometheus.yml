@@ -1,4 +1,4 @@
-# Métricas del sistema (CPU, RAM, disco, red) de las tres máquinas.
+# Métricas del sistema (CPU, RAM, disco, red) de las dos máquinas.
 # Si cambian las IPs, actualizar también docs/03-red.md.
 global:
   scrape_interval: 30s
@@ -7,9 +7,7 @@ scrape_configs:
   - job_name: node
     static_configs:
       - targets: ["192.168.248.33:9100"]
-        labels: { servidor: srv-web }
-      - targets: ["192.168.248.9:9100"]
-        labels: { servidor: srv-db }
+        labels: { servidor: srv-app }
       - targets: ["192.168.116.32:9100"]
         labels: { servidor: srv-backup }
 

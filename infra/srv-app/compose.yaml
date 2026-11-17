@@ -1,0 +1,128 @@
+# srv-app: web, API, traductor y base de datos en una sola máquina
+# Arranque:  ./scripts/deploy.sh srv-app
+#
+#   Usuario --HTTPS--> nginx --> api --> alpha-db (PostgreSQL)
+#                                  \--> traductor (LibreTranslate)
+#
+# Solo nginx publica puertos (80 y 443). La API, el traductor y PostgreSQL
+# viven en la red interna "interna" de Docker: desde la red del instituto no
+# se puede llegar a ellos de ninguna forma (ni siquiera hace falta ufw).
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: alpha-nginx
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    networks: [interna]
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ../../frontend:/usr/share/nginx/html:ro
+
+  api:
+    build: ../../backend
+    container_name: alpha-api
+    restart: unless-stopped
+    depends_on:
+      alpha-db:
+        condition: service_healthy
+    networks: [interna]
+    # Variables una a una (sin env_file): así la API NO recibe la contraseña
+    # del administrador de PostgreSQL, solo la de su usuario alpha_app.
+    environment:
+      POSTGRES_HOST: alpha-db
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${APP_DB_USER}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      API_ROOT_PATH: /api            # Nginx la publica en /api/ (para que /api/docs funcione)
+      NCBI_API_KEY: ${NCBI_API_KEY:-}
+      INGESTA_ACTIVA: ${INGESTA_ACTIVA:-true}
+      INGESTA_HORA: ${INGESTA_HORA:-6}
+      INGESTA_MINUTO: ${INGESTA_MINUTO:-0}
+      INGESTA_ZONA_HORARIA: ${INGESTA_ZONA_HORARIA:-Europe/Madrid}
+      INGESTA_MAX_RESULTADOS: ${INGESTA_MAX_RESULTADOS:-50}
+      TRADUCTOR_URL: ${TRADUCTOR_URL-http://traductor:5000}   # vacío en el .env = no traducir
+      TRADUCTOR_API_KEY: ${TRADUCTOR_API_KEY:-}
+      TRADUCTOR_IDIOMAS: ${TRADUCTOR_IDIOMAS:-es,ca}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Traductor propio (LibreTranslate): traduce título y resumen al español y al
+  # catalán. Solo lo usa la API. La primera vez descarga los modelos de idioma
+  # (unos minutos); se guardan en el volumen. Necesita ~2 GB de RAM.
+  traductor:
+    image: libretranslate/libretranslate:v1.6.5
+    container_name: alpha-traductor
+    restart: unless-stopped
+    networks: [interna]
+    environment:
+      LT_LOAD_ONLY: en,es,ca
+      LT_DISABLE_WEB_UI: "true"
+      LT_THREADS: "2"
+    expose:
+      - "5000"
+    volumes:
+      - lt_modelos:/home/libretranslate/.local
+
+  alpha-db:
+    image: postgres:15
+    container_name: alpha-db
+    restart: unless-stopped
+    networks: [interna]
+    # Sin "ports": PostgreSQL no se publica fuera de la máquina
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}          # administrador (alpha_admin)
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_DB_USER: ${APP_DB_USER}              # los usa database/init/01-roles.sh
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./postgresql/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      # Orden de inicialización (solo con el volumen vacío):
+      - ../../database/init/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
+      - ../../database/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql:ro
+      - ../../database/init/03-permisos.sh:/docker-entrypoint-initdb.d/03-permisos.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Métricas del sistema para Prometheus (srv-backup). network_mode: host para
+  # que ufw controle el puerto 9100 (con "ports:" Docker se saltaría ufw).
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    command: --path.rootfs=/host
+    volumes:
+      - /:/host:ro,rslave
+
+networks:
+  # Red privada de la aplicación. Subred fija para poder limitarla en pg_hba.conf.
+  interna:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+volumes:
+  pg_data:
+    name: alpha_pg_data
+  lt_modelos:
+    name: alpha_lt_modelos

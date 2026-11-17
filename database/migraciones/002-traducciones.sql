@@ -2,7 +2,7 @@
 -- Solo hace falta en bases de datos creadas antes de este cambio;
 -- las nuevas ya la traen desde schema.sql. Se puede ejecutar varias veces.
 --
--- Uso (en srv-db, como administrador: así alpha_app recibe permisos automáticamente):
+-- Uso (en srv-app desde infra/srv-app, como administrador: así alpha_app recibe permisos automáticamente):
 --   docker compose exec -T alpha-db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
 --       < ../../database/migraciones/002-traducciones.sql
 

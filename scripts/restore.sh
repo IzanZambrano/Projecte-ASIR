@@ -1,5 +1,5 @@
 #!/bin/bash
-# Restaura una copia hecha con backup.sh. Se ejecuta en srv-db.
+# Restaura una copia hecha con backup.sh. Se ejecuta en srv-app.
 # Uso:  ./scripts/restore.sh /var/backups/alpha/alpha_db-AAAAMMDD-HHMMSS.dump
 #
 # ATENCIÓN: borra los datos actuales de la base de datos y los sustituye.
@@ -10,7 +10,7 @@ FICHERO=${1:-}
 [[ -f "$FICHERO" ]] || { echo "Uso: $0 fichero.dump" >&2; exit 1; }
 
 RAIZ=$(cd "$(dirname "$0")/.." && pwd)
-DIR_COMPOSE="$RAIZ/infra/srv-db"
+DIR_COMPOSE="$RAIZ/infra/srv-app"
 # shellcheck disable=SC1091
 source "$DIR_COMPOSE/.env"
 
