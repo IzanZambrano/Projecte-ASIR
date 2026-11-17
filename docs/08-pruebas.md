@@ -13,3 +13,5 @@
 | 9 | Copia y restauración | Ver [06-copias.md](06-copias.md) | Datos recuperados | | |
 | 10 | Alerta por caída | Parar la API | Aviso en < 3 min | | |
 | 11 | Ingesta de PubMed | `python -m app.ingesta.pubmed` | Lista de artículos | | |
+| 12 | Ingesta sin duplicados | `python -m app.ingesta.guardar 20` dos veces | 2ª vez: `actualizados: 20` | | |
+| 13 | Búsqueda diaria automática | Poner `INGESTA_HORA`/`INGESTA_MINUTO` 2 min más tarde y reiniciar la API | `/ingesta/estado` muestra la ejecución con `estado: ok` | | |
