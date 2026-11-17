@@ -101,6 +101,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s     # la primera vez crea la base de datos
 
   # Métricas del sistema para Prometheus (srv-backup). network_mode: host para
   # que ufw controle el puerto 9100 (con "ports:" Docker se saltaría ufw).

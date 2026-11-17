@@ -11,7 +11,8 @@ revistas y es difícil seguirla al día.
 1. Recopilar automáticamente publicaciones científicas sobre el tema (PubMed).
 2. Almacenarlas en una base de datos consultable.
 3. Ofrecer una API y una web para buscar y filtrar.
-4. Desplegarlo en una infraestructura de **tres servidores** segura,
+4. Desplegarlo en una infraestructura de **dos servidores** (aplicación y
+   copias/monitorización) segura,
    monitorizada y con copias de seguridad probadas.
 
 ## Alcance

@@ -26,14 +26,16 @@ El repositorio recoge el desarrollo de la aplicación, la configuración de la i
 
 ---
 
-## Funcionalidades previstas
+## Funcionalidades
 
-- [ ] Registro y consulta de publicaciones científicas.
-- [ ] Búsqueda por palabras clave, autor, fecha y fuente.
-- [ ] Búsqueda automática periódica de nuevas publicaciones en PubMed.
-- [ ] Resúmenes automáticos de los estudios.
-- [ ] API REST para consulta de datos.
-- [ ] Interfaz web de consulta y filtrado.
+- [x] Registro y consulta de publicaciones científicas.
+- [x] Búsqueda por texto (título y resumen), autor y fecha.
+- [x] Búsqueda automática diaria de nuevas publicaciones en PubMed.
+- [x] Título y resumen traducidos al español y al catalán (LibreTranslate propio).
+- [x] API REST para consulta de datos (documentación en `/api/docs`).
+- [x] Interfaz web de consulta y filtrado (español, inglés y catalán).
+- [ ] Filtro por fuente (cuando haya fuentes además de PubMed).
+- [ ] Resúmenes automáticos de los estudios (más cortos que el resumen original).
 
 ---
 

@@ -15,6 +15,35 @@ Las tareas se gestionan en GitHub: **Issues** (una por tarea), tablero en
 Una entrada por sesión de trabajo. Lo más valioso para el tribunal son los
 **problemas y cómo se resolvieron**.
 
+### 2026-11-17 — Web y base de datos unificadas en srv-app
+
+- **Hecho:** srv-web y srv-db pasan a ser una sola máquina, **srv-app**
+  (192.168.248.33), con Nginx, API, traductor y PostgreSQL en un único
+  `compose.yaml`. srv-backup queda en otra máquina (Ubuntu Server 26.04).
+- **Motivo:** menos equipos físicos que mantener y PostgreSQL deja de estar
+  expuesto en la red (solo existe en la red interna de Docker).
+- **Problema encontrado antes:** la base de datos de srv-db se había creado con
+  el esquema antiguo y la ingesta fallaba (`column "pmid" does not exist`).
+  Se resolvió con las migraciones 001 y 002; en srv-app la base de datos nueva
+  ya se crea con el esquema completo.
+- **Issue:** #
+
+### 2026-11-12 — Paso a DHCP, despliegue de srv-db y srv-web
+
+- **Hecho:** por indicación del profesorado, los servidores pasan a recibir la
+  IP por DHCP (srv-db 192.168.248.9, srv-web 192.168.248.33). Desplegados
+  PostgreSQL en srv-db y Nginx + API + traductor en srv-web.
+- **Problema 1:** `apt update` fallaba con *«Release file ... is not valid yet»*.
+- **Solución 1:** el reloj del servidor iba un día atrasado; se activó NTP
+  (`timedatectl set-ntp true`).
+- **Problema 2:** la web abría pero no mostraba publicaciones; la ingesta
+  daba `column "pmid" of relation "papers" does not exist`.
+- **Solución 2:** la base de datos se había creado con el esquema antiguo; se
+  aplicaron las migraciones `001-pmid.sql` y `002-traducciones.sql`.
+- **Observación:** la primera traducción de 50 artículos tarda 10–30 min sin
+  GPU (LibreTranslate al 260 % de CPU); las siguientes solo traducen lo nuevo.
+- **Issue:** #
+
 ### 2026-11-10 — Cambio de IP de srv-web
 
 - **Hecho:** srv-web pasa a tener la IP 192.168.248.33 (dentro de la red
@@ -37,19 +66,6 @@ Una entrada por sesión de trabajo. Lo más valioso para el tribunal son los
   puerta de enlace y DNS `192.168.88.88`. Se cambió la máscara a /16 y la
   puerta de enlace y el DNS en netplan. El aviso de Open vSwitch es inofensivo
   (no se usa OVS).
-- **Issue:** #
-
-### 2026-11-17 — Web y base de datos unificadas en srv-app
-
-- **Hecho:** srv-web y srv-db pasan a ser una sola máquina, **srv-app**
-  (192.168.248.33), con Nginx, API, traductor y PostgreSQL en un único
-  `compose.yaml`. srv-backup queda en otra máquina (Ubuntu Server 26.04).
-- **Motivo:** menos equipos físicos que mantener y PostgreSQL deja de estar
-  expuesto en la red (solo existe en la red interna de Docker).
-- **Problema encontrado antes:** la base de datos de srv-db se había creado con
-  el esquema antiguo y la ingesta fallaba (`column "pmid" does not exist`).
-  Se resolvió con las migraciones 001 y 002; en srv-app la base de datos nueva
-  ya se crea con el esquema completo.
 - **Issue:** #
 
 ### AAAA-MM-DD — _Título_
